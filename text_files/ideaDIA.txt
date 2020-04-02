@@ -33,3 +33,9 @@ Sottocampagne
 		- Promozione per business man all’ora di pranzo
 	ANZIANI:
 		- Promozione incentrata sul pilates e sul cardio
+
+
+
+sottocampagna 1 = c1, c2, c3, c4
+sottocampagna 2 = c1, c2, c3, c4
+sottocampagna 3 = c1, c2, c3, c4

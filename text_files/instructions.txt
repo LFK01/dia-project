@@ -1,6 +1,7 @@
 Pricing + Advertising
 
-The goal is modeling a scenario in which a seller exploits advertising tools to attract more and more users to its website, thus increasing the number of possible buyers. The seller needs to learn simultaneously the conversion rate and the number of users the advertising tools can attract.
+The goal is modeling a scenario in which a seller exploits advertising tools to attract more and more users to its website, thus increasing the number of possible buyers.
+The seller needs to learn simultaneously the conversion rate and the number of users the advertising tools can attract.
 
 Imagine:
 
