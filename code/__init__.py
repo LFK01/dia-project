@@ -3,8 +3,8 @@ from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
 
 if __name__ == '__main__':
-    x = np.linspace(0, 10, num=11, endpoint=True)
-    y = np.exp(-x ** 2 / 9)
+    x = np.linspace(0, 100, num=111, endpoint=True)
+    y = 1 - np.exp(-x ** 1.8 / 700)
     f1 = interp1d(x, y, kind='linear')
     f2 = interp1d(x, y, kind='quadratic')
     f3 = interp1d(x, y, kind='cubic')
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     f5 = interp1d(x, y, kind='previous')
     f6 = interp1d(x, y, kind='next')
 
-    x_new = np.linspace(0, 10, num=41, endpoint=True)
+    x_new = np.linspace(0, 100, num=401, endpoint=True)
 
     plt.plot(x, y, 'o', x_new, f1(x_new), '-', x_new, f2(x_new), '--', x_new, f3(x_new), ':')
     plt.legend(['data', 'linear', 'quadratic', 'cubic'], loc='best')
