@@ -1,0 +1,35 @@
+Idee DIA
+- Boraccia
+- Pacchetto Vacanza
+- Bicicletta
+- Costume
+- Monopattino Elettrico
+- Google Home
+- Tenda da campeggio
+- Pacchetto palestra
+
+
+Pacchetto Palestra di medio livello(Abbonamento trimestrale):
+Tipo pacchetto: Sala pesi, Pilates
+Prezzo: 130 € - 180 € (0-50-100-130-180-250-300)
+PRO:
+	- possibilità di avere utenti differenti
+	- stagionalità (Aprile/Maggio-Settembre-Gennaio)
+CLASSI DI UTENTI:
+	- Studente
+	- Terza età 
+	- Lavoratori
+ATTRIBUTI
+	- Sesso
+	- Esperto/Non esperto
+
+Cosa dobbiamo analizzare:
+- Conversion Rate
+	
+Sottocampagne
+	STUDENTI:
+		- Promozione riservata a studenti universitari
+	LAVORATORI:
+		- Promozione per business man all’ora di pranzo
+	ANZIANI:
+		- Promozione incentrata sul pilates e sul cardio
