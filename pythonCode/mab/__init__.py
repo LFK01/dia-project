@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # define the total budget we can allocate to the tree subcampaigns
     budget = 1
     # define the number of points in which we split the range of prices
-    number_of_points = 30
+    number_of_points = 4
     # defines the total number of arms to be by the learners
     n_arms = number_of_points
 
@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
     # define the average optimal value that can be obtained for the total number of arms
     # opt = (np.max(p1) + np.max(p2) + np.max(p3)) / 3
-    opt = 1
+    opt = [1, 1, 1]
 
     # T is the time horizon
     T = 400
@@ -51,6 +51,14 @@ if __name__ == '__main__':
     # number of times we repeat the experiment
     n_experiments = 100
     # arrays used to store the rewards obtained by each algorithm
+    # Example: [[[0, 0, ... 1, 1],  <- rewards of first environment in first experiment
+    #            [0, 0, ... 0, 1],  <- rewards of second environment in first experiment
+    #            [0, 0, ... 0, 0]]  <- rewards of third environment in first experiment
+    #           ...
+    #           [[0, 0, ... 1, 1],  <- rewards of first environment in last experiment
+    #            [0, 0, ... 0, 1],  <- rewards of second environment in last experiment
+    #            [0, 0, ... 0, 0]]] <- rewards of third environment in last experiment
+    #               ^list of experiments of time steps of rewards
     ts_rewards_per_experiment = []
     gr_rewards_per_experiment = []
 
@@ -98,11 +106,63 @@ if __name__ == '__main__':
         ts_rewards_per_experiment.append(ts_learner.collected_rewards)
         gr_rewards_per_experiment.append(gr_learner.collected_rewards)
 
+    # list where we store the lists of the mean of the received rewards for each environment
+    # Example: TODO
+    ts_rewards_history = []
+    gr_rewards_history = []
+
+    # list where we store the cumulative sum of rewards of all the experiments previously made for each environment
+    ts_cumulative_sum_of_rewards = []
+    gr_cumulative_sum_of_rewards = []
+
+    # list where we store the lists of the mean of the cumulated regret for each environment
+    ts_regrets_history = []
+    gr_regrets_history = []
+
+    # list where we store the regret
+    gr_regret = []
+    ts_regret = []
+
+    # list where we store the cumulative sum of regrets of all the experiments previously made for each environment
+    # ts_cumulative_sum_of_regret = []
+    # gr_cumulative_sum_of_regret = []
+
     for env in range(n_environments):
+
+        # append one list for each environment
+        gr_rewards_history.append([])
+        ts_rewards_history.append([])
+
+        gr_cumulative_sum_of_rewards.append([])
+        ts_cumulative_sum_of_rewards.append([])
+
+        gr_regrets_history.append([])
+        ts_regrets_history.append([])
+
+        gr_regret.append([])
+        ts_regret.append([])
+
+        for experiment in range(n_experiments):
+            # append the rewards of the experiment
+            gr_rewards_history[env].append(np.mean(gr_rewards_per_experiment[experiment][env]))
+            ts_rewards_history[env].append(np.mean(ts_rewards_per_experiment[experiment][env]))
+            gr_regrets_history[env].append(1 - np.mean(gr_rewards_per_experiment[experiment][env]))
+            ts_regrets_history[env].append(1 - np.mean(ts_rewards_per_experiment[experiment][env]))
+
+        # compute the cumulative sum for each environment
+        gr_cumulative_sum_of_rewards[env] = np.cumsum(gr_rewards_history[env])
+        ts_cumulative_sum_of_rewards[env] = np.cumsum(ts_rewards_history[env])
+
+        # compute the regret for each environment
+        gr_regret[env] = np.cumsum(gr_regrets_history[env])
+        ts_regret[env] = np.cumsum(ts_regrets_history[env])
+
+        # plot the graphs
         plt.figure(env)
-        plt.ylabel("Regret env " + str(env))
+        plt.ylabel("Regret Env" + str(env))
         plt.xlabel("t")
-        plt.plot(np.cumsum(np.mean(opt - ts_rewards_per_experiment[env], axis=0)), 'r')
-        plt.plot(np.cumsum(np.mean(opt - gr_rewards_per_experiment[env], axis=0)), 'g')
+        plt.plot(range(n_experiments), ts_regret[env], 'r')
+        plt.plot(range(n_experiments), gr_regret[env], 'g')
         plt.legend(["TS", "Greedy"])
-        plt.show()
+
+    plt.show()
