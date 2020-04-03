@@ -1,6 +1,3 @@
-import numpy as np
-
-
 class Learner:
     def __init__(self, n_environments, n_arms):
         # store the number of environments

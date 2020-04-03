@@ -1,4 +1,5 @@
-from pythonCode.mab.Learner import *
+import numpy as np
+from pythonCode.mab.learner import Learner
 
 
 class Greedy_Learner(Learner):

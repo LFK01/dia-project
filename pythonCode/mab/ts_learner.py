@@ -1,4 +1,4 @@
-from pythonCode.mab.Learner import *
+from pythonCode.mab.learner import Learner
 import numpy as np
 from operator import itemgetter
 

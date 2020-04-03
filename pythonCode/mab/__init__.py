@@ -1,9 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from pythonCode.mab.Non_Stationary_Environment import *
-from pythonCode.mab.TS_Learner import *
-from pythonCode.mab.SWTS_Learner import *
-from pythonCode.mab.greedy_learner import *
+from pythonCode.mab.environment import Environment
+from pythonCode.mab.ts_learner import TS_Learner
+from pythonCode.mab.greedy_learner import Greedy_Learner
+
 
 if __name__ == '__main__':
 

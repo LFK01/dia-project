@@ -1,4 +1,4 @@
-from pythonCode.mab.TS_Learner import *
+from pythonCode.mab.ts_learner import *
 
 
 class SWTS_Learner(TS_Learner):
