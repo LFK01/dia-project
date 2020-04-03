@@ -1,4 +1,4 @@
-from code.mab.Learner import *
+from pythonCode.mab.Learner import *
 import numpy as np
 from operator import itemgetter
 
@@ -48,7 +48,7 @@ class TS_Learner(Learner):
             # store the coordinates of the best arm
             best_arm_coordinates.append(optimal_coordinates)
 
-        # old code
+        # old pythonCode
         # # append the new environment from which we have extracted the arm to the list of extracted environments
         # extracted_environments.append(best_arm_coordinates[0][0])
         # # update the available budget

@@ -1,4 +1,4 @@
-from code.mab.Environment import *
+from pythonCode.mab.Environment import *
 
 
 class Non_Stationary_Environment(Environment):
