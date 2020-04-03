@@ -4,6 +4,9 @@ from pythonCode.mab.Learner import *
 class Greedy_Learner(Learner):
     def __init__(self, n_environments, n_arms):
         super().__init__(n_environments, n_arms)
+        # expected payoff is a matrix containing the  expected payoff of each arm for each environment, initialized
+        # to all zeros. Example: [[0.  ...  0.,  0. 0. 0. 0. 0. 0.], [0. ... 0.,  0. 0. 0. 0. 0. 0.], [0. ... 0.,  0. 0. 0. 0. 0. 0.]]
+        # couldn't reazlize why there are some commas inside the array, the debugger actually shows that the shape is {3, 30}
         self.expected_payoffs = np.zeros((n_environments, n_arms))
 
     def update(self, pulled_arm, reward):
