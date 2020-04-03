@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # define the total budget we can allocate to the tree subcampaigns
     budget = 1
     # define the number of points in which we split the range of prices
-    number_of_points = 4
+    number_of_points = 30
     # defines the total number of arms to be by the learners
     n_arms = number_of_points
 
@@ -37,9 +37,14 @@ if __name__ == '__main__':
 
     # create numpy array defining the probabilities of getting a reward
     # they're exactly like y1, y2 and y3
-    p1 = np.array(y1)
-    p2 = np.array(y2)
-    p3 = np.array(y3)
+    # p1 = np.array(y1)
+    # p2 = np.array(y2)
+    # p3 = np.array(y3)
+
+    # hardcoded probabilities used to simulate some more irregular environments
+    p1 = np.array(np.random.rand(n_arms))
+    p2 = np.array(np.random.rand(n_arms))
+    p3 = np.array(np.random.rand(n_arms))
 
     # define the average optimal value that can be obtained for the total number of arms
     # opt = (np.max(p1) + np.max(p2) + np.max(p3)) / 3
