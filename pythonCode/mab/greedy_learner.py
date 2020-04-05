@@ -1,5 +1,5 @@
 import numpy as np
-from pythonCode.mab.learner import Learner
+from pythonCode.mab.Learner import Learner
 
 
 class Greedy_Learner(Learner):
@@ -35,7 +35,7 @@ class Greedy_Learner(Learner):
         # iterate over the environments
         for environment in range(self.n_environments):
             # retrieve the best arms
-            indexes = np.argwhere(self.expected_payoffs[environment] == self.expected_payoffs[environment].max())\
+            indexes = np.argwhere(self.expected_payoffs[environment] == self.expected_payoffs[environment].max()) \
                 .reshape(-1)
             # break ties and store the coordinate
             pulled_arms.append([environment, np.random.choice(indexes)])
