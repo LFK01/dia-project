@@ -11,13 +11,16 @@ class Knapsack:
     def optimize(self):
         n_clicks = 0
         combination = []
-
         for value in combinations(self.daily_budget, 3):
-            temp_clicks = 0
-            for idx, budget in enumerate(value):
-                temp_clicks += self.subcampaigns_combination[idx, budget]
-            if temp_clicks > n_clicks:
-                n_clicks = temp_clicks
-                combination = np.asarray(value);
+            tot_sum = 0
+            for i in value:
+                tot_sum += i
+            if tot_sum <= self.total_budget:
+                temp_clicks = 0
+                for idx, budget in enumerate(value):
+                    temp_clicks += self.subcampaigns_combination[idx, budget]
+                if temp_clicks > n_clicks:
+                    n_clicks = temp_clicks
+                    combination = np.asarray(value)
 
         return combination
