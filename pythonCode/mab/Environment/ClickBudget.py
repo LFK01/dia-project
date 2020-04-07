@@ -1,4 +1,6 @@
 import numpy as np
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import RBF, ConstantKernel as C
 
 
 class ClickBudget:
@@ -16,3 +18,6 @@ class ClickBudget:
 
     def getClicksFunction(self):
         return self
+
+    def generate_observations(self, x, noise_std):
+        return self.clicks(x) + np.random.normal(0, noise_std, size=self.clicks(x).shape)

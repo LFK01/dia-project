@@ -31,7 +31,7 @@ class SuperArmConstraintSolver:
         # means that the i_th arm for that campaign has been chosen.
         choice_first_subcampaign = mod.binary_var_list(self.armsPerSubcampaign, name="x")
         choice_second_subcampaign = mod.binary_var_list(self.armsPerSubcampaign, name="y")
-        choice_third_subcampaign = mod.binary_var_list(self.armsPerSubcampaign, name="Y")
+        choice_third_subcampaign = mod.binary_var_list(self.armsPerSubcampaign, name="z")
 
         # Constraint: there must be 3 choices among the 3 subcampaigns
         mod.add_constraint(mod.sum(
@@ -54,11 +54,19 @@ class SuperArmConstraintSolver:
                      mod.sum(choice_third_subcampaign[i] * self.rewardsThirdSubcampaign[i] for i in I))
         # Notice that we're adding only the rewards of the chosen 3 arms (each for each subcampaign)
 
+        solver = mod.solve()
+        all_solution = solver.get_all_values()
         # To find the solution it is necessary to maximize the reward. The feasibility is guaranteed by the constraint above
-        mod.solve()
-        print("choices first subcampaign", choice_first_subcampaign)
-        print("choices second subcampaign", choice_second_subcampaign)
-        print("choices third subcampaigns", choice_third_subcampaign)
+        solution1 = solver.get_values(choice_first_subcampaign).index(1)
+        solution2 = solver.get_values(choice_second_subcampaign).index(1)
+        solution3 = solver.get_values(choice_third_subcampaign).index(1)
+
+        print("choices first subcampaign", solution1)
+        print("choices second subcampaign", solution2)
+        print("choices third subcampaigns", solution3)
+
+        results = [solution1, solution2, solution3]
+        return results
 
 
 if __name__ == '__main__':
