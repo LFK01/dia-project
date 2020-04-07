@@ -1,8 +1,10 @@
+import time
 import matplotlib.pyplot as plt
 from pythonCode.mab.Environment.ClickBudget import *
 from pythonCode.mab.Learner.GPTS_Learner import *
 from pythonCode.mab.not_used.Knapsack import *
 from pythonCode.mab.Solver.SuperArmConstraintSolver import *
+from tqdm import tqdm
 
 subcampaign = [0, 1, 2]
 
@@ -14,11 +16,11 @@ sigma = 10
 
 T = 60
 
-n_experiments = 1
+n_experiments = 100
 collected_rewards_per_experiments = []
 
-print("Starting experiments...")
-for e in range(0, n_experiments):
+# print("Starting experiments...")
+for e in tqdm(range(0, n_experiments)):
     # Initialize the environment, learner and click for each experiment
     env = []
     gpts_learner = []
@@ -54,7 +56,7 @@ for e in range(0, n_experiments):
 
     # At the end of each experiment, save the total click of each t of this experiment
     collected_rewards_per_experiments.append(total_clicks_per_t)
-    print(e)  # Only for debugging purpose
+    time.sleep(1)
 
 # Find the optimal value executing the Knapsack optimization on the different environment
 # TODO: find the best way to get the optimum value
