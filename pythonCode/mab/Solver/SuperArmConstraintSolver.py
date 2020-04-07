@@ -55,37 +55,11 @@ class SuperArmConstraintSolver:
         # Notice that we're adding only the rewards of the chosen 3 arms (each for each subcampaign)
 
         solver = mod.solve()
-        all_solution = solver.get_all_values()
+
         # To find the solution it is necessary to maximize the reward. The feasibility is guaranteed by the constraint above
         solution1 = solver.get_values(choice_first_subcampaign).index(1)
         solution2 = solver.get_values(choice_second_subcampaign).index(1)
         solution3 = solver.get_values(choice_third_subcampaign).index(1)
 
-        print("choices first subcampaign", solution1)
-        print("choices second subcampaign", solution2)
-        print("choices third subcampaigns", solution3)
-
         results = [solution1, solution2, solution3]
         return results
-
-
-if __name__ == '__main__':
-    # This main is necessary only to see if the code compiles and for testing in the future
-
-    # define a list of rewards and shuffle it
-    rew = [i for i in range(0, 60)]
-    random.shuffle(rew)
-
-    # List of budgets and shuffle it
-    budg = [i for i in range(0, 60)]
-    random.shuffle(budg)
-
-    # The total budget
-    totalB = 500000
-
-    # arms per subcampaign = 20 so 20 arms per subcampaign for a total of 60
-    armXCamp = 20
-
-    # Model construction to solve the problem
-    model = SuperArmConstraintSolver(rew, budg, totalB, armXCamp)
-    model.solve()

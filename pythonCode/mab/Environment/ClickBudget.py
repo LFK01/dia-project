@@ -10,6 +10,7 @@ class ClickBudget:
         self.sigmas = np.ones(len(budgets)) * sigma
         self.id = id
 
+    # Return the estimated n of
     def clicks(self, budget):
         return 100 * (1.0 - np.exp(-4 * budget + 3 * budget ** 3))
 

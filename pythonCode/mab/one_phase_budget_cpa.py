@@ -1,82 +1,88 @@
-import numpy as np
 import matplotlib.pyplot as plt
 from pythonCode.mab.Environment.ClickBudget import *
-from pythonCode.mab.GPTS_Learner import *
-from pythonCode.mab.Knapsack import *
-from pythonCode.mab.SuperArmConstraintSolver import *
+from pythonCode.mab.Learner.GPTS_Learner import *
+from pythonCode.mab.not_used.Knapsack import *
+from pythonCode.mab.Solver.SuperArmConstraintSolver import *
 
 subcampaign = [0, 1, 2]
 
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 11
+n_arms = 20
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
-T = 10
+T = 60
 
-n_experiments = 2
-
+n_experiments = 1
 collected_rewards_per_experiments = []
 
+print("Starting experiments...")
 for e in range(0, n_experiments):
     # Initialize the environment, learner and click for each experiment
     env = []
     gpts_learner = []
     total_clicks_per_t = []
-
     for s in subcampaign:
         env.append(ClickBudget(s, budgets=daily_budget, sigma=sigma))
         gpts_learner.append(GPTS_Learner(n_arms=n_arms, arms=daily_budget))
-        # for arm in range(0, n_arms):
-        #     x = np.random.choice(daily_budget, 1)
-        #     y = env[s].generate_observations(x, noise_std=sigma)
-        #     gpts_learner[s].generate_gaussian_process(x, y)
 
     # For each t in the time horizon, run the GP_TS algorithm
     for t in range(0, T):
-        subcampaign_combination = []
+        total_subcampaign_combination = []
         for s in subcampaign:
-            pulled_arm = gpts_learner[s].pull_arm()
-            reward = env[s].round(pulled_arm)
-            gpts_learner[s].update(pulled_arm, reward)
-
-            for idx in range(0, n_arms):
-                subcampaign_combination.append(gpts_learner[s].get_predicted_arm(idx))
+            for arm in gpts_learner[s].pull_arm():
+                total_subcampaign_combination.append(arm)
 
         # At the and of the GP_TS algorithm of all the sub campaign , run the Knapsack optimization
-        # and save the chosen budget of each sub campaign
+        # and save the chosen arm of each sub campaign
         budgets = []
         for n in subcampaign:
             for i in daily_budget:
                 budgets.append(i)
-        superarm = SuperArmConstraintSolver(subcampaign_combination, budgets, max_budget,
+        superarm = SuperArmConstraintSolver(total_subcampaign_combination, budgets, max_budget,
                                             n_arms).solve()
 
-        # At the end of each t, save the total click
+        # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
         total_clicks = 0
         for s in subcampaign:
-            reward = gpts_learner[s].get_predicted_arm(superarm[s])
+            reward = env[s].round(superarm[s])
             total_clicks += reward
+            gpts_learner[s].update(superarm[s], reward)
+
         total_clicks_per_t.append(total_clicks)
 
     # At the end of each experiment, save the total click of each t of this experiment
     collected_rewards_per_experiments.append(total_clicks_per_t)
-    print(collected_rewards_per_experiments)
+    print(e)  # Only for debugging purpose
 
-opt = 0
-# Get the opt by exploring the last environment analyzed (maybe not the best solution)
+# Find the optimal value executing the Knapsack optimization on the different environment
 # TODO: find the best way to get the optimum value
-for e in env:
-    opt += np.max(e.means)
+total_optimal_combination = []
+for s in subcampaign:
+    for idx in range(0, n_arms):
+        total_optimal_combination.append(env[s].means[idx])
+optimal_reward = SuperArmConstraintSolver(total_optimal_combination, budgets, max_budget, n_arms).solve()
+opt = 0
+for s in subcampaign:
+    opt += env[s].means[optimal_reward[s]]
 
 print("Opt")
 print(opt)
 print("Rewards")
 print(collected_rewards_per_experiments)
-plt.figure(0)
+print("Regrets")
+print(np.mean(opt - collected_rewards_per_experiments, axis=0))
+plt.figure()
 plt.ylabel("Regret")
 plt.xlabel("t")
 plt.plot(np.cumsum(np.mean(opt - collected_rewards_per_experiments, axis=0)), 'g')
-plt.legend(["GPTS"])
+plt.legend(["Cumulative Regret"])
+plt.show()
+
+plt.figure()
+plt.ylabel("Regret")
+plt.xlabel("t")
+plt.plot((np.mean(opt - collected_rewards_per_experiments, axis=0)), 'r')
+plt.legend(["Regret"])
 plt.show()
