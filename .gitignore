@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
+# CK extensions
 *.so
 
 # Distribution / packaging
@@ -138,7 +138,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# C extensions
+# CK extensions
 *.so
 
 # Distribution / packaging

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-# Environment class used to build the Multi-Armed-Bandit environment
+# environment class used to build the Multi-Armed-Bandit environment
 class Environment:
     # constructor method
     def __init__(self, n_arms, probabilities):
