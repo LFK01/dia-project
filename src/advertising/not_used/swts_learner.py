@@ -1,4 +1,4 @@
-from pythonCode.mab.not_used.ts_learner import *
+from src.advertising.not_used.ts_learner import *
 
 
 class SWTS_Learner(TS_Learner):

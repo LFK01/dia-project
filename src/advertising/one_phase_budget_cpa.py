@@ -1,11 +1,11 @@
 import time
 import matplotlib.pyplot as plt
-from pythonCode.mab.Environment.ClickBudget import *
-from pythonCode.mab.Learner.GPTS_Learner import *
-from pythonCode.mab.not_used.Knapsack import *
-from pythonCode.mab.Solver.SuperArmConstraintSolver import *
+from src.advertising.environment.click_budget import *
+from src.advertising.learner.gpts_learner import *
+from src.advertising.solver.superarm_constraint_solver import *
 from tqdm import tqdm
 
+# Parameters initialization
 subcampaign = [0, 1, 2]
 
 min_budget = 0.0
@@ -14,10 +14,14 @@ n_arms = 20
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
-T = 60
+# Time horizon
+T = 10
+# Number of experiments
+n_experiments = 5
 
-n_experiments = 100
 collected_rewards_per_experiments = []
+env = []
+budgets = []
 
 # print("Starting experiments...")
 for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
@@ -27,7 +31,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
     total_clicks_per_t = []
     for s in subcampaign:
         env.append(ClickBudget(s, budgets=daily_budget, sigma=sigma))
-        gpts_learner.append(GPTS_Learner(n_arms=n_arms, arms=daily_budget))
+        gpts_learner.append(GPTSLearner(n_arms=n_arms, arms=daily_budget))
 
     # For each t in the time horizon, run the GP_TS algorithm
     for t in range(0, T):
@@ -36,7 +40,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
             for arm in gpts_learner[s].pull_arm():
                 total_subcampaign_combination.append(arm)
 
-        # At the and of the GP_TS algorithm of all the sub campaign , run the Knapsack optimization
+        # At the and of the GP_TS algorithm of all the sub campaign, run the Knapsack optimization
         # and save the chosen arm of each sub campaign
         budgets = []
         for n in subcampaign:
@@ -74,17 +78,17 @@ print(opt)
 print("Rewards")
 print(collected_rewards_per_experiments)
 print("Regrets")
-print(np.mean(opt - collected_rewards_per_experiments, axis=0))
+print(np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0))
 plt.figure()
 plt.ylabel("Regret")
 plt.xlabel("t")
-plt.plot(np.cumsum(np.mean(opt - collected_rewards_per_experiments, axis=0)), 'g')
+plt.plot(np.cumsum(np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)), 'g')
 plt.legend(["Cumulative Regret"])
 plt.show()
 
 plt.figure()
 plt.ylabel("Regret")
 plt.xlabel("t")
-plt.plot((np.mean(opt - collected_rewards_per_experiments, axis=0)), 'r')
+plt.plot((np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)), 'r')
 plt.legend(["Regret"])
 plt.show()
