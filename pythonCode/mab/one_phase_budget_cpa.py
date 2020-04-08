@@ -20,7 +20,7 @@ n_experiments = 100
 collected_rewards_per_experiments = []
 
 # print("Starting experiments...")
-for e in tqdm(range(0, n_experiments)):
+for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
     # Initialize the environment, learner and click for each experiment
     env = []
     gpts_learner = []
