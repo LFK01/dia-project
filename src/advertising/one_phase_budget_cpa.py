@@ -10,12 +10,12 @@ subcampaign = [0, 1, 2]
 
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 20
+n_arms = 10
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
 # Time horizon
-T = 10
+T = 60
 # Number of experiments
 n_experiments = 5
 
