@@ -1,4 +1,4 @@
-from src.advertising.not_used.ts_learner import *
+from src.pricing.ts_learner import *
 
 
 class SWTS_Learner(TS_Learner):

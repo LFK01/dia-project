@@ -1,4 +1,4 @@
-from src.advertising.not_used.environment import *
+from src.pricing.environment import *
 
 
 class Non_Stationary_Environment(Environment):
