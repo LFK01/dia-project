@@ -8,6 +8,7 @@ class GPTSLearner(Learner):
     def __init__(self, n_arms, arms):
         super(GPTSLearner, self).__init__(n_arms)
         self.arms = arms
+        self.predicted_arms = np.zeros(self.n_arms)
         self.means = np.zeros(self.n_arms)
         self.sigmas = np.ones(self.n_arms) * 10
         self.pulled_arms = []
@@ -32,7 +33,10 @@ class GPTSLearner(Learner):
         self.gp.fit(x, y)
         self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
         self.sigmas = np.maximum(self.sigmas, 1e-2)
-        self.means = np.maximum(0, self.means)
+
+        # Save the predicted value for each arms, avoiding negative value
+        self.predicted_arms = np.random.normal(self.means, self.sigmas)
+        self.predicted_arms = np.maximum(0, self.predicted_arms)
 
     # Run both the update function, increasing the round
     def update(self, pulled_arm, reward):
@@ -42,7 +46,12 @@ class GPTSLearner(Learner):
 
     # Pull all the sample from the learner
     def pull_arm(self):
-        sampled_values = np.random.normal(self.means, self.sigmas)
+        sampled_values = self.predicted_arms
+        # If the sum of the predicted_arms is 0, initialize with small value
+        if sum(sampled_values) == 0:
+            sampled_values = [i * 1e-3 for i in range(len(self.arms))]
+        # Set the predicted rewards for budget = 0 to 0
+        sampled_values[0] = 0
         return sampled_values
 
     # Generate a Gaussian Process with the observed value (not used but will be useful in future)

@@ -22,7 +22,8 @@ class ClickBudget:
         self.budget_id = budget_id
 
     def round(self, pulled_arm):
-        return np.random.normal(self.means[pulled_arm], self.sigmas[pulled_arm])
+        # Returning the rewards avoiding negative value
+        return np.maximum(0, np.random.normal(self.means[pulled_arm], self.sigmas[pulled_arm]))
 
     def get_clicks_function(self):
         return self

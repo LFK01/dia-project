@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from src.advertising.environment.click_budget import *
 from src.advertising.learner.gpts_learner import *
 from src.advertising.solver.superarm_constraint_solver import *
+from src.advertising.solver.knapsack import *
 from tqdm import tqdm
 
 # Parameters initialization
@@ -17,7 +18,7 @@ sigma = 10
 # Time horizon
 T = 60
 # Number of experiments
-n_experiments = 5
+n_experiments = 100
 
 collected_rewards_per_experiments = []
 env = []
@@ -46,8 +47,8 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
         for n in subcampaign:
             for i in daily_budget:
                 budgets.append(i)
-        superarm = SuperArmConstraintSolver(total_subcampaign_combination, budgets, max_budget,
-                                            n_arms).solve()
+        superarm = Knapsack(total_subcampaign_combination, budgets,
+                            n_arms).solve()
 
         # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
         total_clicks = 0
@@ -68,17 +69,19 @@ total_optimal_combination = []
 for s in subcampaign:
     for idx in range(0, n_arms):
         total_optimal_combination.append(env[s].means[idx])
-optimal_reward = SuperArmConstraintSolver(total_optimal_combination, budgets, max_budget, n_arms).solve()
+optimal_reward = Knapsack(total_optimal_combination, budgets, n_arms).solve()
 opt = 0
 for s in subcampaign:
     opt += env[s].means[optimal_reward[s]]
 
+np.set_printoptions(precision=3)
 print("Opt")
 print(opt)
 print("Rewards")
 print(collected_rewards_per_experiments)
 print("Regrets")
-print(np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0))
+regrets = np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)
+print(regrets)
 plt.figure()
 plt.ylabel("Regret")
 plt.xlabel("t")
