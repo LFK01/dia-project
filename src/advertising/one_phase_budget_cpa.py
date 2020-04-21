@@ -11,12 +11,12 @@ subcampaign = [0, 1, 2]
 
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 10
+n_arms = 11
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
 # Time horizon
-T = 60
+T = 80
 # Number of experiments
 n_experiments = 100
 
@@ -47,8 +47,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
         for n in subcampaign:
             for i in daily_budget:
                 budgets.append(i)
-        superarm = Knapsack(total_subcampaign_combination, budgets,
-                            n_arms).solve()
+        superarm = Knapsack(total_subcampaign_combination, budgets, n_arms).solve()
 
         # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
         total_clicks = 0
@@ -61,7 +60,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 
     # At the end of each experiment, save the total click of each t of this experiment
     collected_rewards_per_experiments.append(total_clicks_per_t)
-    time.sleep(1)
+    time.sleep(0.01)
 
 # Find the optimal value executing the Knapsack optimization on the different environment
 # TODO: find the best way to get the optimum value

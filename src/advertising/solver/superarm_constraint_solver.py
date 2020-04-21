@@ -11,12 +11,12 @@ class SuperArmConstraintSolver:
     # The constraint takes as inputs the rewards of each subcampaign with their related budgets for each arm
     # and the total budget allowed
     def __init__(self, rewards, budgets, total_budget, arms_per_subcampaign):
-        self.rewards_first_subcampaign = rewards[0:arms_per_subcampaign - 1]
-        self.rewards_second_subcampaign = rewards[arms_per_subcampaign: 2 * arms_per_subcampaign - 1]
-        self.rewards_third_subcampaign = rewards[2 * arms_per_subcampaign: 3 * arms_per_subcampaign - 1]
-        self.budgets_first_subcampaign = budgets[0:arms_per_subcampaign - 1]
-        self.budgets_second_subcampaign = budgets[arms_per_subcampaign: 2 * arms_per_subcampaign - 1]
-        self.budgets_third_subcampaign = budgets[2 * arms_per_subcampaign: 3 * arms_per_subcampaign - 1]
+        self.rewards_first_subcampaign = rewards[:arms_per_subcampaign]
+        self.rewards_second_subcampaign = rewards[arms_per_subcampaign: 2 * arms_per_subcampaign]
+        self.rewards_third_subcampaign = rewards[2 * arms_per_subcampaign:]
+        self.budgets_first_subcampaign = budgets[:arms_per_subcampaign]
+        self.budgets_second_subcampaign = budgets[arms_per_subcampaign: 2 * arms_per_subcampaign]
+        self.budgets_third_subcampaign = budgets[2 * arms_per_subcampaign:]
         self.total_budget = total_budget
         self.arms_per_subcampaign = arms_per_subcampaign
 

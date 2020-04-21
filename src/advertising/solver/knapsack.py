@@ -12,9 +12,9 @@ class Knapsack:
 
         # initialize budgets vector
         self.budgets = []
-        self.budgets.append(budgets[0: n_arms])
+        self.budgets.append(budgets[: n_arms])
         self.budgets.append(budgets[n_arms: 2 * n_arms])
-        self.budgets.append(budgets[2 * n_arms: 3 * n_arms])
+        self.budgets.append(budgets[2 * n_arms:])
 
         # initialize dynamic programming table, dimensions: (subcampaigns + 1, budgets)
         self.dp_table = np.zeros((len(self.rewards) + 1, len(self.budgets[0])), dtype=int)
@@ -47,8 +47,11 @@ class Knapsack:
         # initialize solution vector
         solution = [0, 0, 0]
 
-        # select the column with the highest value in the dp table
-        sol_3_arm = np.argmax(self.dp_table[3])
+        # select the column with the highest value in the dp table (first occurrence)
+        # sol_3_arm = np.argmax(self.dp_table[3])
+
+        # select the column with the highest value in the dp table (last occurrence)
+        sol_3_arm = n_columns - 1 - np.argmax(self.dp_table[3][::-1])
         # assign the arm for the third subcampaign by selecting the arm saved in the best_arm table
         solution[2] = self.best_arm[2][sol_3_arm]
 
