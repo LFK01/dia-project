@@ -48,7 +48,10 @@ class Knapsack:
         solution = [0, 0, 0]
 
         # select the column with the highest value in the dp table
-        sol_3_arm = np.argmax(self.dp_table[3])
+        # sol_3_arm = np.argmax(self.dp_table[3])
+
+        sol_3_arm = n_columns - 1 - np.argmax(self.dp_table[3][::-1])
+
         # assign the arm for the third subcampaign by selecting the arm saved in the best_arm table
         solution[2] = self.best_arm[2][sol_3_arm]
 

@@ -39,10 +39,14 @@ class GPTSLearner(Learner):
         self.predicted_arms = np.maximum(0, self.predicted_arms)
 
     # Run both the update function, increasing the round
-    def update(self, pulled_arm, reward):
+    def update(self, pulled_arm, reward, window_size=0, sw=False):
         self.t += 1
         self.update_observations(pulled_arm, reward)
-        self.update_model()
+
+        if sw:
+            self.update_model_sw(window_size)
+        else:
+            self.update_model()
 
     # Pull all the sample from the learner
     def pull_arm(self):
@@ -53,6 +57,27 @@ class GPTSLearner(Learner):
         # Set the predicted rewards for budget = 0 to 0
         sampled_values[0] = 0
         return sampled_values
+
+    # update model in sliding windows mode
+    def update_model_sw(self, window_size):
+        # for arm in range(0, len(self.arms)):
+        #     n_sample = np.sum(self.pulled_arms[-window_size:] == arm)
+        #     collected_reward_in_window = self.collected_rewards[arm][-n_sample:]
+
+        # Get only the pulled_arms and collected rewards inside the sliding window
+        pulled_arms_in_window = self.pulled_arms[-window_size:]
+        collected_reward_in_window = self.collected_rewards[-window_size:]
+        x = np.atleast_2d(pulled_arms_in_window).T
+        y = collected_reward_in_window
+
+        assert (len(x) == len(y))
+        self.gp.fit(x, y)
+        self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
+        self.sigmas = np.maximum(self.sigmas, 1e-2)
+
+        # Save the predicted value for each arms, avoiding negative value
+        self.predicted_arms = np.random.normal(self.means, self.sigmas)
+        self.predicted_arms = np.maximum(0, self.predicted_arms)
 
     # Generate a Gaussian Process with the observed value (not used but will be useful in future)
     def generate_gaussian_process(self, new_x_obs, new_y_obs):
