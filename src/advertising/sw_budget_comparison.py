@@ -12,28 +12,30 @@ subcampaign = [0, 1, 2]
 
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 10
+n_arms = 15
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
-# Time horizon
-T = 150
+# number of phases
 n_phases = 3
-# Window size proportional to T
-window_size = int(np.sqrt(T)) * 2
+# Time horizon multiple of the number of phases
+T = n_phases * 130
+# Window size proportional to the square root if T and always integer
+window_size = int(np.sqrt(T) * 4.6)
 # Number of experiments
 n_experiments = 10
 
 collected_rewards_per_experiments = []
 env = []
 budgets = []
-opt_per_phases = [0, 0, 0]
+opt_per_phases = []
 
 for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
     # Initialize the environment, learner and click for each experiment
     env = []
     gpts_learner = []
     total_clicks_per_t = []
+    opt_per_phases = [0, 0, 0]
 
     for s in subcampaign:
         gpts_learner.append(GPTSLearner(n_arms=n_arms, arms=daily_budget))
@@ -54,7 +56,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
                     budgets.append(b)
             # Calculate the optimum for every phase
             for s in subcampaign:
-                env.append(ClickBudget(s, budgets=daily_budget, sigma=sigma, c=c, d=d * (s + 1), e=e * (s + 1)))
+                env.append(ClickBudget(s, budgets=daily_budget, sigma=sigma, a=s*100, c=c, d=d, e=e))
                 for idx in range(0, n_arms):
                     total_optimal_combination.append(env[s].means[idx])
 
