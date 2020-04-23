@@ -1,7 +1,7 @@
 from src.pricing.ts_learner import *
 
 
-class SWTS_Learner(TS_Learner):
+class SWTS_Learner(TSLearner):
     def __init__(self, n_arms, window_size):
         super().__init__(n_arms)
         self.window_size = window_size

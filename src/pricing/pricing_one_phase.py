@@ -1,4 +1,3 @@
-import numpy as np
 import matplotlib.pyplot as plt
 from src.pricing.environment import *
 from src.pricing.greedy_learner import *
@@ -36,8 +35,8 @@ for e in range(0, n_experiments):
 
     for subcampaign in range(len(subcampaigns)):
         environments.append(Environment(n_arms=n_arms, probabilities=rewards))
-        ts_learners.append(TS_Learner(n_arms=n_arms))
-        gr_learners.append(Greedy_Learner(n_arms=n_arms))
+        ts_learners.append(TSLearner(n_arms=n_arms))
+        gr_learners.append(GreedyLearner(n_arms=n_arms))
     for t in range(0, T):
         # Thompson Sampling Learner
         for subcampaign in range(len(subcampaigns)):
@@ -55,7 +54,7 @@ for e in range(0, n_experiments):
         ts_rewards_per_experiment[subcampaign].append(ts_learners[subcampaign].collected_rewards)
         gr_rewards_per_experiment[subcampaign].append(gr_learners[subcampaign].collected_rewards)
 
-fig, axs = plt.subplots(3, 2)
+fig, axs = plt.subplots(3, 2, figsize=(14, 8))
 for subcampaign in range(len(subcampaigns)):
     # axs[subcampaign, 0].figure("subcampaign" + str(subcampaign) + ".1")
     axs[subcampaign, 0].plot(np.cumsum(np.mean(np.array(opt) - ts_rewards_per_experiment[subcampaign], axis=0)), 'r')

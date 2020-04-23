@@ -2,7 +2,7 @@ import numpy as np
 from src.advertising.learner.learner import Learner
 
 
-class Greedy_Learner(Learner):
+class GreedyLearner(Learner):
     def __init__(self, n_arms):
         super().__init__(n_arms)
         # expected payoff is a matrix containing the  expected payoff of each arm
@@ -18,6 +18,6 @@ class Greedy_Learner(Learner):
     def pull_arm(self):
         if self.t < self.n_arms:
             return self.t
-        idxs = np.argwhere(self.expected_payoffs == self.expected_payoffs.max()).reshape(-1)
-        pulled_arm = np.random.choice(idxs)
+        indexes = np.argwhere(self.expected_payoffs == np.amax(self.expected_payoffs)).reshape(-1)
+        pulled_arm = np.random.choice(indexes)
         return pulled_arm

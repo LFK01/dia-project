@@ -1,9 +1,8 @@
-from src.advertising.learner.learner import Learner
 import numpy as np
-from operator import itemgetter
+from src.advertising.learner.learner import Learner
 
 
-class TS_Learner(Learner):
+class TSLearner(Learner):
     def __init__(self, n_arms):
         super().__init__(n_arms)
         # initialize the parameters of the beta distribution

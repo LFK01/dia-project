@@ -56,12 +56,12 @@ class Knapsack:
         # assign the arm for the third subcampaign by selecting the arm saved in the best_arm table
         solution[2] = self.best_arm[2][sol_3_arm]
 
-        # the column of the second subcampaing associated to the optimal solution is the one at index
+        # the column of the second subcampaign associated to the optimal solution is the one at index
         # [column of third subcampaign - index of third subcampaign]
         sol_2_arm = sol_3_arm - solution[2]
         solution[1] = self.best_arm[1][sol_2_arm]
 
-        # the column of the first subcampaing associated to the optimal solution is the one at index
+        # the column of the first subcampaign associated to the optimal solution is the one at index
         # [column of second subcampaign - index of second subcampaign]
         sol_1_arm = sol_2_arm - solution[1]
         solution[0] = self.best_arm[0][sol_1_arm]
