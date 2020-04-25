@@ -12,14 +12,14 @@ subcampaign = [0, 1, 2]
 
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 10
+n_arms = 11
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
 # number of phases
 n_phases = 3
 # Time horizon multiple of the number of phases
-T = n_phases * 1
+T = n_phases * 100
 # Window size proportional to the square root if T and always integer
 window_size = int(np.sqrt(T) * 4.5)
 # Number of experiments
@@ -53,7 +53,10 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 
             # Calculate the optimum for every phase
             for s in subcampaign:
-                env.append(ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=100 * (i + 1)))
+                env.append(
+                    ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=100 * (i + 1),
+                                coefficient=3 + (i + 1),
+                                d=(2 * i), e=(i + 1)))
 
         total_subcampaign_combination = []
         for s in subcampaign:
@@ -70,13 +73,13 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
         for s in subcampaign:
             reward = env[s].round(superarm[s])
             total_clicks += reward
-            gpts_learner[s].update(superarm[s], reward, window_size, True)
+            gpts_learner[s].update(superarm[s], reward)
 
         total_clicks_per_t.append(total_clicks)
 
     # At the end of each experiment, save the total click of each t of this experiment
     collected_rewards_per_experiments.append(total_clicks_per_t)
-    time.sleep(1)
+    time.sleep(0.01)
 
 swts_instantaneous_regret = np.zeros(T)
 phases_len = int(T / n_phases)
@@ -85,8 +88,12 @@ optimum_per_round = np.zeros(T)
 for i in range(0, 3):
     env = []
     total_optimal_combination = []
+
     for s in subcampaign:
-        env.append(ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=100 * (i + 1)))
+        env.append(
+            ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=100 * (i + 1),
+                        coefficient=3 + (i + 1),
+                        d=(2 * i), e=(i + 1)))
         value = []
         for idx in range(0, n_arms):
             total_optimal_combination.append(env[s].means[idx])
