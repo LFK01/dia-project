@@ -1,6 +1,7 @@
 from src.advertising.learner.learner import *
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel
+from sklearn import preprocessing
 
 
 # GP-TS Learner, subclass of Learner
@@ -70,7 +71,6 @@ class GPTSLearner(Learner):
         x = np.atleast_2d(pulled_arms_in_window).T
         y = collected_reward_in_window
 
-        assert (len(x) == len(y))
         self.gp.fit(x, y)
         self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
         self.sigmas = np.maximum(self.sigmas, 1e-2)
