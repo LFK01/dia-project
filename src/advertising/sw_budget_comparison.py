@@ -1,5 +1,4 @@
 import time
-import math
 import matplotlib.pyplot as plt
 from src.advertising.environment.click_budget import *
 from src.advertising.learner.gpts_learner import *
@@ -11,15 +10,15 @@ subcampaign = [0, 1, 2]
 
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 11
+n_arms = 21
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
 # number of phases
 n_phases = 3
 # Time horizon multiple of the number of phases
-T = n_phases * 100
-# Window size proportional to the square root if T and always integer
+T = n_phases * 300
+# Window size proportional to the square root of T and always integer
 window_size = int(np.sqrt(T) * 4.5)
 # Number of experiments
 n_experiments = 5
@@ -103,6 +102,7 @@ for i in range(0, 3):
         env.append(
             ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=150 * (i + 1),
                         functionType=functionType[i][s]))
+        
         value = []
         for idx in range(0, n_arms):
             total_optimal_combination.append(env[s].means[idx])
