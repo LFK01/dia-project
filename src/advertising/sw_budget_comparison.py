@@ -1,9 +1,7 @@
 import time
-import math
 import matplotlib.pyplot as plt
 from src.advertising.environment.click_budget import *
 from src.advertising.learner.gpts_learner import *
-from src.advertising.solver.superarm_constraint_solver import *
 from src.advertising.solver.knapsack import *
 from tqdm import tqdm
 
@@ -12,15 +10,15 @@ subcampaign = [0, 1, 2]
 
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 11
+n_arms = 21
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
 # number of phases
 n_phases = 3
 # Time horizon multiple of the number of phases
-T = n_phases * 100
-# Window size proportional to the square root if T and always integer
+T = n_phases * 300
+# Window size proportional to the square root of T and always integer
 window_size = int(np.sqrt(T) * 4.5)
 # Number of experiments
 n_experiments = 5
@@ -54,7 +52,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
             # Calculate the optimum for every phase
             for s in subcampaign:
                 env.append(
-                    ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=100 * (i + 1),
+                    ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=150 * (i + 1),
                                 coefficient=3 + (i + 1),
                                 d=(2 * i), e=(i + 1)))
 
@@ -73,7 +71,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
         for s in subcampaign:
             reward = env[s].round(superarm[s])
             total_clicks += reward
-            gpts_learner[s].update(superarm[s], reward)
+            gpts_learner[s].update(superarm[s], reward, window_size=window_size, sw=True)
 
         total_clicks_per_t.append(total_clicks)
 
@@ -91,7 +89,7 @@ for i in range(0, 3):
 
     for s in subcampaign:
         env.append(
-            ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=100 * (i + 1),
+            ClickBudget(s, budgets=daily_budget, sigma=sigma, max_value=150 * (i + 1),
                         coefficient=3 + (i + 1),
                         d=(2 * i), e=(i + 1)))
         value = []

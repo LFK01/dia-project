@@ -17,7 +17,7 @@ class GPTSLearner(Learner):
         self.gp = GaussianProcessRegressor(kernel=kernel,
                                            alpha=self.alpha ** 2,
                                            normalize_y=True,
-                                           n_restarts_optimizer=9)
+                                           n_restarts_optimizer=10)
         self.x_obs = np.array([])
         self.y_obs = np.array([])
 
