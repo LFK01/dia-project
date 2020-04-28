@@ -18,17 +18,17 @@ n_phases = 3
 # Time horizon multiple of the number of phases
 T = n_phases * 100
 # Window size proportional to the square root of T and always integer
-window_size = int(np.sqrt(T) * 3.4)
+window_size = int(np.sqrt(T) * 4.1)
 # Number of experiments
-n_experiments = 2
+n_experiments = 5
 
 # BUILD OF THE 3 ENVIRONMENTS. ONE FOR EACH SUBCAMPAIGN. The single environment is not stationary
 # define the values of the x
 x_values = [np.linspace(min_budget, max_budget, n_arms) for i in range(0, n_phases)]
 # The values of the y for each phase
 y_values = [[0, 3, 6, 15, 36, 87, 136, 183, 223, 258, 288, 313, 333, 348, 358, 364, 366, 367, 367, 367, 367],
-            [0, 3, 6, 15, 36, 87, 88, 95, 112, 124, 135, 145, 145, 175, 200, 230, 250, 270, 300, 340, 367],
-            [0, 3, 6, 15, 49, 100, 140, 170, 180, 182, 183, 183, 183, 183, 210, 240, 280, 330, 343, 355, 367]]
+            [0, 3, 6, 15, 25, 35, 49, 70, 100, 145, 180, 225, 269, 299, 336, 376, 396, 410, 420, 430, 430],
+            [0, 3, 6, 15, 20, 27, 39, 48, 68, 92, 130, 178, 210, 245, 288, 320, 370, 410, 435, 455, 455]]
 # define the length of each phase. The first is T/3 -10, the second T/3 and so on
 phase_length = [T / 3 - 10, T / 3, T / 3 + 10]
 # define the budgets
