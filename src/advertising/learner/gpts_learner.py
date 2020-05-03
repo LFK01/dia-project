@@ -52,7 +52,6 @@ class GPTSLearner(Learner):
     def update(self, pulled_arm, reward, window_size=0, sw=False):
         self.t += 1
         self.update_observations(pulled_arm, reward)
-
         if sw:
             self.update_model_sw(window_size)
         else:
