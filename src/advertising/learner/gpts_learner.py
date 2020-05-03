@@ -31,13 +31,22 @@ class GPTSLearner(Learner):
     def update_model(self):
         x = np.atleast_2d(self.pulled_arms).T
         y = self.collected_rewards
-        self.gp.fit(x, y)
-        self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
-        self.sigmas = np.maximum(self.sigmas, 1e-2)
 
-        # Save the predicted value for each arms, avoiding negative value
-        self.predicted_arms = np.random.normal(self.means, self.sigmas)
-        self.predicted_arms = np.maximum(0, self.predicted_arms)
+        # Fit the model
+        self.update_prediction(x, y)
+
+    # Update model in sliding windows mode
+    def update_model_sw(self, window_size):
+        # Get only the pulled_arms and collected rewards inside the sliding window
+        pulled_arms_in_window = self.pulled_arms[-window_size:]
+        collected_reward_in_window = self.collected_rewards[-window_size:]
+
+        # Create variable x and y accordingly to what is needed to gp.fit()
+        x = np.atleast_2d(pulled_arms_in_window).T
+        y = collected_reward_in_window
+
+        # Fit the model
+        self.update_prediction(x, y)
 
     # Run both the update function, increasing the round
     def update(self, pulled_arm, reward, window_size=0, sw=False):
@@ -59,18 +68,8 @@ class GPTSLearner(Learner):
         sampled_values[0] = 0
         return sampled_values
 
-    # update model in sliding windows mode
-    def update_model_sw(self, window_size):
-        # for arm in range(0, len(self.arms)):
-        #     n_sample = np.sum(self.pulled_arms[-window_size:] == arm)
-        #     collected_reward_in_window = self.collected_rewards[arm][-n_sample:]
-
-        # Get only the pulled_arms and collected rewards inside the sliding window
-        pulled_arms_in_window = self.pulled_arms[-window_size:]
-        collected_reward_in_window = self.collected_rewards[-window_size:]
-        x = np.atleast_2d(pulled_arms_in_window).T
-        y = collected_reward_in_window
-
+    # Update the prediction accordingly to the new input data
+    def update_prediction(self, x, y):
         self.gp.fit(x, y)
         self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
         self.sigmas = np.maximum(self.sigmas, 1e-2)
