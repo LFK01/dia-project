@@ -16,7 +16,6 @@ n_arms = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
 subcampaigns = [0, 1, 2]
 conversion_prices = np.linspace(min_budget, max_budget, n_arms)
 rewards = rewards(conversion_prices)
-n_arms = len(rewards)
 opt = np.max(rewards)
 
 environments = []

@@ -1,30 +1,39 @@
 import matplotlib.pyplot as plt
 from tqdm import tqdm
+import numpy as np
 
 from src.advertising.learner.gpts_learner import GPTSLearner
 from src.advertising.solver.knapsack import Knapsack
-from src.pricing.environment import *
-from src.pricing.ts_learner import *
+from src.assignment_six.advanced_ts_learner import AdvancedTSLearner
+from src.pricing.environment import Environment as PricingEnvironment
+from src.advertising.environment.click_budget import ClickBudget as AdvertisingEnvironment
 from src.pricing.reward_function import rewards
 
 T = 100
 
 n_experiments = 100
 
-min_budget = 0.0
-max_budget = 1.0
-
-n_arms = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
-
-daily_budget = np.linspace(min_budget, max_budget, n_arms)
-
 subcampaigns = [0, 1, 2]
-conversion_prices = np.linspace(min_budget, max_budget, n_arms)
+
+min_budget_advertising = 0.0
+max_budget_advertising = 1.0
+sigma_advertising = 10
+
+n_arms_advertising = 21
+
+daily_budget = np.linspace(min_budget_advertising, max_budget_advertising, n_arms_advertising)
+
+min_price_pricing = 0.0
+max_price_pricing = 1.0
+
+n_arms_pricing = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
+
+conversion_prices = np.linspace(min_price_pricing, max_price_pricing, n_arms_pricing)
 rewards = rewards(conversion_prices)
-n_arms = len(rewards)
 opt = np.max(rewards)
 
-environments = []
+environments_pricing = []
+environments_advertising = []
 
 ts_rewards_per_experiment = []
 
@@ -33,15 +42,16 @@ for subcampaign in range(len(subcampaigns)):
 
 for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 
-    ts_learners = []
+    advanced_ts_learners = []
     gpts_learner = []
 
     total_clicks_per_t = []
 
     for s in subcampaigns:
-        environments.append(Environment(n_arms=n_arms, probabilities=rewards))
-        ts_learners.append(TSLearner(n_arms=n_arms))
-        gpts_learner.append(GPTSLearner(n_arms=n_arms, arms=daily_budget))
+        environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, probabilities=rewards))
+        environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budget, sigma=sigma_advertising))
+        advanced_ts_learners.append(AdvancedTSLearner(n_arms=n_arms_pricing))
+        gpts_learner.append(GPTSLearner(n_arms=n_arms_advertising, arms=daily_budget))
         # add gp learner
 
     for t in range(0, T):
@@ -50,12 +60,14 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 
         # Thompson Sampling and GP-TS Learner
         for s in subcampaigns:
-            pulled_arm = ts_learners[s].pull_arm()
-            reward = environments[s].round(pulled_arm)
-            ts_learners[s].update(pulled_arm, reward)
+            pulled_arm, conversion_rate = advanced_ts_learners[s].pull_arm()
+            reward = environments_pricing[s].round(pulled_arm)
+            advanced_ts_learners[s].update(pulled_arm, reward)
 
+            click_numbers_vector = np.array(gpts_learner[s].pull_arm())
+            modified_rewards = click_numbers_vector * pulled_arm * conversion_rate
             values_combination_of_each_subcampaign.\
-                append(gpts_learner[s].pull_arm())
+                append(modified_rewards.tolist())
 
         # At the and of the GP_TS algorithm of all the sub campaign, run the Knapsack optimization
         # and save the chosen arm of each sub campaign
@@ -65,14 +77,14 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
         # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
         total_clicks = 0
         for s in subcampaigns:
-            reward = environments[s].round(superarm[s])
+            reward = environments_advertising[s].round(superarm[s])
             total_clicks += reward
             gpts_learner[s].update(superarm[s], reward)
 
         total_clicks_per_t.append(total_clicks)
 
     for s in subcampaigns:
-        ts_rewards_per_experiment[s].append(ts_learners[s].collected_rewards)
+        ts_rewards_per_experiment[s].append(advanced_ts_learners[s].collected_rewards)
 
 fig, axs = plt.subplots(3, 2, figsize=(14, 8))
 for subcampaign in range(len(subcampaigns)):
