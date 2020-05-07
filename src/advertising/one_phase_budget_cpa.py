@@ -16,9 +16,9 @@ daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
 # Time horizon
-T = 300
+T = 60
 # Number of experiments
-n_experiments = 10
+n_experiments = 1
 
 collected_rewards_per_experiments = []
 env = []
@@ -37,17 +37,13 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
     # For each t in the time horizon, run the GP_TS algorithm
     for t in range(0, T):
         total_subcampaign_combination = []
+
         for s in subcampaign:
-            for arm in gpts_learner[s].pull_arm():
-                total_subcampaign_combination.append(arm)
+            total_subcampaign_combination.append(gpts_learner[s].pull_arm())
 
         # At the and of the GP_TS algorithm of all the sub campaign, run the Knapsack optimization
         # and save the chosen arm of each sub campaign
-        budgets = []
-        for n in subcampaign:
-            for i in daily_budget:
-                budgets.append(i)
-        superarm = Knapsack(total_subcampaign_combination, budgets, n_arms).solve()
+        superarm = Knapsack(total_subcampaign_combination, daily_budget).solve()
 
         # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
         total_clicks = 0
@@ -66,9 +62,8 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 # TODO: find the best way to get the optimum value
 total_optimal_combination = []
 for s in subcampaign:
-    for idx in range(0, n_arms):
-        total_optimal_combination.append(env[s].means[idx])
-optimal_reward = Knapsack(total_optimal_combination, budgets, n_arms).solve()
+    total_optimal_combination.append(env[s].means)
+optimal_reward = Knapsack(total_optimal_combination, daily_budget).solve()
 opt = 0
 for s in subcampaign:
     opt += env[s].means[optimal_reward[s]]

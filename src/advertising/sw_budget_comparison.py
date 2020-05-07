@@ -20,7 +20,7 @@ T = n_phases * 100
 # Window size proportional to the square root of T and always integer
 window_size = int(np.sqrt(T) * 4.1)
 # Number of experiments
-n_experiments = 5
+n_experiments = 1
 
 # BUILD OF THE 3 ENVIRONMENTS. ONE FOR EACH SUBCAMPAIGN. The single environment is not stationary
 # define the values of the x
@@ -44,10 +44,10 @@ collected_rewards_per_experiments = []
 sw_collected_rewards_per_experiments = []
 opt_per_phases = [0, 0, 0]
 
-budgets = []
-for n in subcampaign:
-    for b in daily_budget:
-        budgets.append(b)
+total_clicks = 0
+sw_total_clicks = 0
+total_clicks_per_t = []
+sw_total_clicks_per_t = []
 
 # start of the experiments
 for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
@@ -66,27 +66,25 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
         total_subcampaign_combination = []
         sw_total_subcampaign_combination = []
         for s in subcampaign:
-            for arm in gpts_learner[s].pull_arm():
-                total_subcampaign_combination.append(arm)
-            for sw_arm in sw_gpts_learner[s].pull_arm():
-                sw_total_subcampaign_combination.append(sw_arm)
+            total_subcampaign_combination.append(gpts_learner[s].pull_arm())
+            sw_total_subcampaign_combination.append(sw_gpts_learner[s].pull_arm())
 
         # At the and of the GP_TS algorithm of all the sub campaign, run the Knapsack optimization
         # and save the chosen arm of each sub campaign for TS and SWTS
-        superarm = Knapsack(total_subcampaign_combination, budgets, n_arms).solve()
-        sw_superarm = Knapsack(sw_total_subcampaign_combination, budgets, n_arms).solve()
+        superarm = Knapsack(total_subcampaign_combination, daily_budget).solve()
+        sw_superarm = Knapsack(sw_total_subcampaign_combination, daily_budget).solve()
 
         # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
         total_clicks = 0
         sw_total_clicks = 0
         for s in subcampaign:
+            #TS
             reward = env[s].round(superarm[s], t)
-            sw_reward = env[s].round(sw_superarm[s], t)
-
             total_clicks += reward
             gpts_learner[s].update(superarm[s], reward)
+
             # SWTS
-            sw_reward = env[s].round(sw_superarm[s])
+            sw_reward = env[s].round(sw_superarm[s], t)
             sw_total_clicks += sw_reward
             sw_gpts_learner[s].update(sw_superarm[s], sw_reward, window_size, True)
 
@@ -109,10 +107,9 @@ total_optimal_combination = []
 for p in range(0, n_phases):
     total_optimal_combination = []
     for i in subcampaign:
-        for idx in range(0, n_arms):
-            total_optimal_combination.append(env[i].means[p][idx])
+        total_optimal_combination.append(env[i].means[p])
 
-    optimal_reward = Knapsack(total_optimal_combination, budgets, n_arms).solve()
+    optimal_reward = Knapsack(total_optimal_combination, daily_budget).solve()
     for s in subcampaign:
         opt_per_phases[p] += env[s].means[p][optimal_reward[s]]
 
