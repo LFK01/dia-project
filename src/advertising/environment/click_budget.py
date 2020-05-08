@@ -6,14 +6,12 @@ import numpy as np
 # a = 100, b = 1.0, c = 4, d = 3, e = 3
 def clicks(budget, max_value, coefficient, functionType):
     if functionType == 0:
-        return max_value * (
-                1.0 - np.exp(-coefficient * budget + 7 / 2 * budget ** 2))
+        return max_value * (1.0 - np.exp(-coefficient * budget + 7 / 2 * budget ** 2))
     if functionType == 1:
-        return max_value * (
-                1.0 - np.exp(-coefficient * budget + 3 * budget ** 3))
+        return max_value * (1.0 - np.exp(-coefficient * budget + 3 * budget ** 3))
     if functionType == 2:
-        return max_value * (
-                1.0 - np.exp(-coefficient * budget + 7 / 2 * budget ** 2 + 3 * budget ** 3 - 3 * budget ** 4))
+        return max_value * (1.0 - np.exp(-coefficient * budget
+                                         + 7 / 2 * budget ** 2 + 3 * budget ** 3 - 3 * budget ** 4))
 
     return 1
 
