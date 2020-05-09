@@ -16,7 +16,7 @@ daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
 # Time horizon
-T = 60
+T = 10
 # Number of experiments
 n_experiments = 1
 

@@ -14,8 +14,20 @@ max_price = 100.0
 n_arms = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
 
 subcampaigns = [0, 1, 2]
+
+probabilities_vector = np.array([1/4, 1/2, 1/4])
+
 conversion_prices = np.linspace(min_price, max_price, n_arms)
+all_rewards_vector = []
+
 rewards = rewards(conversion_prices, max_price)
+
+for probability in probabilities_vector:
+    all_rewards_vector.append(rewards * probability)
+
+all_rewards_vector = np.array(all_rewards_vector)
+
+aggregated_curve = np.sum(all_rewards_vector, axis=0)
 opt = np.max(rewards)
 rewards_normalized = np.divide(rewards, opt)
 opt_normalized = np.divide(opt, opt)
