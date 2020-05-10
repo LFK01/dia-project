@@ -6,7 +6,7 @@ from src.pricing.environment import *
 
 class ContextsGenerator:
     def __init__(self, user_class, user_class_probabilities, environment,n_arms):
-        self.contexts = [ContextContainer(user_class, user_class_probabilities, environment,n_arms)]
+        self.contexts = [ContextContainer(user_class, user_class_probabilities, environment, n_arms)]
         self.rewards = []
         self.opt = []
 
