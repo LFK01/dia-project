@@ -33,7 +33,7 @@ class ContextContainer:
         self.__context_optimal_arm = self.__ts_learner_context.pull_arm()
         total_reward = 0
         rewards_this_round = []
-        for cls in self.__context:
+        for cls in range(0, len(self.__context)):
             reward_of_class = self.__environment[cls].round(self.__context_optimal_arm) * self.__probabilities[cls]
             rewards_this_round.append(reward_of_class / self.__probabilities[cls])
             self.__reward_per_arm[cls][self.__context_optimal_arm].append(reward_of_class / self.__probabilities[cls])
@@ -45,34 +45,42 @@ class ContextContainer:
     # by comparing the lower bound multiplied by the probability of it and the sum of the lower bounds of the divided
     # contexts multiplied each one with the related probability
     def split_context(self):
+        # If the number of class in a context is 1, we can't split anymore
         if len(self.__context) == 1:
-            return self
-        else:
-            current_context_bound = self.__compute_hoeffding_bounds(self.__context, self.__context_optimal_arm)
-            possible_splitting = []
-            splitting_bounds = []
-            splitting_values = []
+            raise
+
+        # If we have no rewards for some arm in some class, we can't compute the hoeffding bound
+        for i in range(0, self.__n_arms):
             for cls in self.__context:
-                possible_splitting.append([list(set(self.__context) - {cls}), [cls]])
-                optimal_arms = [self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][0]),
-                                self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][1])]
-                splitting_bounds.append([self.__compute_hoeffding_bounds(possible_splitting[-1][0], optimal_arms[0]),
-                                         self.__compute_hoeffding_bounds(possible_splitting[-1][1], optimal_arms[1])])
-                splitting_values.append(splitting_bounds[-1][0] + splitting_bounds[-1][1])
-            index = int(np.argmax(splitting_values))
-            if current_context_bound <= splitting_values[index]:
-                userclass1 = possible_splitting[index][0]
-                userclass2 = possible_splitting[index][1]
-                new_contexts_learners = self.__ts_learner_context.split_in_2(userclass1, userclass2)
-                probabilities1 = [self.__probabilities[i] for i in userclass1]
-                probabilities2 = [self.__probabilities[i] for i in userclass2]
-                environment1 = [self.__environment[i] for i in userclass1]
-                environment2 = [self.__environment[i] for i in userclass2]
-                return [
-                    self.__init__(userclass1, probabilities1, environment1, self.__n_arms, new_contexts_learners[0]),
-                    self.__init__(userclass2, probabilities2, environment2, self.__n_arms, new_contexts_learners[1])]
-            else:
-                return self
+                if len(self.__reward_per_arm[cls][i]) == 0:
+                    raise
+
+        current_context_bound = self.__compute_hoeffding_bounds(self.__context, self.__context_optimal_arm)
+        possible_splitting = []
+        splitting_bounds = []
+        splitting_values = []
+        for cls in self.__context:
+            possible_splitting.append([list(set(self.__context) - {cls}), [cls]])
+            optimal_arms = [self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][0]),
+                            self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][1])]
+            splitting_bounds.append([self.__compute_hoeffding_bounds(possible_splitting[-1][0], optimal_arms[0]),
+                                     self.__compute_hoeffding_bounds(possible_splitting[-1][1], optimal_arms[1])])
+            splitting_values.append(splitting_bounds[-1][0] + splitting_bounds[-1][1])
+        index = int(np.argmax(splitting_values))
+        if current_context_bound <= splitting_values[index]:
+            userclass1 = possible_splitting[index][0]
+            userclass2 = possible_splitting[index][1]
+            new_contexts_learners = self.__ts_learner_context.split_in_2(userclass1, userclass2)
+            probabilities1 = [self.__probabilities[i] for i in userclass1]
+            probabilities2 = [self.__probabilities[i] for i in userclass2]
+            environment1 = [self.__environment[i] for i in userclass1]
+            environment2 = [self.__environment[i] for i in userclass2]
+            return [ContextContainer(userclass1, probabilities1, environment1, self.__n_arms,
+                                     new_contexts_learners[0]), ContextContainer(userclass2, probabilities2,
+                                                                                 environment2, self.__n_arms,
+                                                                                 new_contexts_learners[1])]
+        else:
+            raise
 
     # Private method used for calculating the hoeffding bound given the classes with which calculate it and the optimal
     # arm index
@@ -83,7 +91,8 @@ class ContextContainer:
             empirical_mean += np.mean(self.__reward_per_arm[cls][optimal_arm_index])
             context_probability += self.__probabilities[cls]
         return context_probability * (empirical_mean - m.sqrt(
-            -m.log10(confidence) / len(self.__reward_per_arm[context_classes[0]][optimal_arm_index])))
+            -m.log10(confidence) / len(
+                self.__reward_per_arm[context_classes[0]][optimal_arm_index])))
 
 
 if __name__ == "__main__":

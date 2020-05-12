@@ -16,7 +16,7 @@ class Ts_learner_context(Learner):
         self.__n_classes = len(user_class)
         if rewards_per_arm is None and collected_rewards is None and beta_parameters is None and collected_rewards is None:
             self.__rewards_per_arm = [[[] for arm in range(0, n_arms)] for cls in range(0, self.__n_classes)]
-            self.__collected_rewards = [np.array([]) for cls in range(0, self.__n_classes)]
+            self.__collected_rewards = [[] for cls in range(0, self.__n_classes)]
             self.__beta_parameters = [np.ones((n_arms, 2)) for cls in range(0, len(user_class))]
         else:
             self.__rewards_per_arm = rewards_per_arm
@@ -79,4 +79,4 @@ class Ts_learner_context(Learner):
     def __update_observations(self, pulled_arm, reward):
         for cls in range(0, self.__n_classes):
             self.__rewards_per_arm[cls][pulled_arm].append(reward[cls])
-            np.append(self.__collected_rewards[cls], reward[cls])
+            self.__collected_rewards[cls].append(reward[cls])
