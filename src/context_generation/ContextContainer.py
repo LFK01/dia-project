@@ -75,6 +75,7 @@ class ContextContainer:
             probabilities2 = [self.__probabilities[i] for i in userclass2]
             environment1 = [self.__environment[i] for i in userclass1]
             environment2 = [self.__environment[i] for i in userclass2]
+            print("splitting1:", userclass1, "splitting 2:", userclass2, "\n")
             return [ContextContainer(userclass1, probabilities1, environment1, self.__n_arms,
                                      new_contexts_learners[0]), ContextContainer(userclass2, probabilities2,
                                                                                  environment2, self.__n_arms,
