@@ -28,7 +28,7 @@ class Ts_learner_context(Learner):
     # by the probability of that  class). Then it sum the arrays (with axis=0 !!) and it finds the best arm by computing
     # the argmax of the found array thereby finding the best arm. Finally it returns the best arm.
     def pull_arm(self):
-        scores = np.zeros(self.__n_classes, self.__n_arms)
+        scores = np.zeros((self.__n_classes, self.__n_arms))
         for cls in range(0, self.__n_classes):
             scores[cls] = (np.random.beta(self.__beta_parameters[cls][:, 0], self.__beta_parameters[cls][:, 1]) *
                            self.__probabilities[cls])
@@ -39,13 +39,13 @@ class Ts_learner_context(Learner):
     # Classes is an array of indexes. Each index represents a class. Example: classes = [1,3,4] means that in this case
     # we are considering only the classes with those indexes instead of consider all the class which are part of the context
     def get_best_arm_sub_context(self, classes):
-        scores = np.zeros(len(classes), self.__n_arms)
+        scores = np.zeros((len(classes), self.__n_arms))
         for cls in range(0, len(classes)):
             scores[cls] = (np.random.beta(self.__beta_parameters[classes[cls]][:, 0],
                                           self.__beta_parameters[classes[cls]][:, 1]) *
                            self.__probabilities[classes[cls]])
         index = np.argmax(scores.sum(axis=0))
-        return classes[index]
+        return index
 
     # This method updates the distributions. It updates the beta parameter of the optimal arm for each beta of each class
     def update(self, pulled_arm, reward):
@@ -79,4 +79,4 @@ class Ts_learner_context(Learner):
     def __update_observations(self, pulled_arm, reward):
         for cls in range(0, self.__n_classes):
             self.__rewards_per_arm[cls][pulled_arm].append(reward[cls])
-            self.__collected_rewards = np.append(self.__collected_rewards[cls], reward[cls])
+            np.append(self.__collected_rewards[cls], reward[cls])

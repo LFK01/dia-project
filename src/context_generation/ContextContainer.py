@@ -31,7 +31,7 @@ class ContextContainer:
         self.__context_optimal_arm = self.__ts_learner_context.pull_arm()
         total_reward = 0
         rewards_this_round = []
-        for cls in range(0, self.__n_classes):
+        for cls in self.__context:
             reward_of_class = self.__environment[cls].round(self.__context_optimal_arm) * self.__probabilities[cls]
             rewards_this_round.append(reward_of_class / self.__probabilities[cls])
             self.__reward_per_arm[cls][self.__context_optimal_arm].append(reward_of_class / self.__probabilities[cls])
@@ -51,8 +51,8 @@ class ContextContainer:
             possible_splitting.append([list(set(self.__context) - {cls}), [cls]])
             optimal_arms = [self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][0]),
                             self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][1])]
-            splitting_bounds.append([self.__compute_hoeffding_bounds(possible_splitting[-1][0], optimal_arms[-1][0]),
-                                     self.__compute_hoeffding_bounds(possible_splitting[-1][1], optimal_arms[-1][1])])
+            splitting_bounds.append([self.__compute_hoeffding_bounds(possible_splitting[-1][0], optimal_arms[0]),
+                                     self.__compute_hoeffding_bounds(possible_splitting[-1][1], optimal_arms[1])])
             splitting_values.append(splitting_bounds[-1][0] + splitting_bounds[-1][1])
         index = int(np.argmax(splitting_values))
         if current_context_bound <= splitting_values[index]:
