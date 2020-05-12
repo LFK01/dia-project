@@ -5,8 +5,8 @@ from src.pricing.environment import *
 
 
 class ContextsGenerator:
-    def __init__(self, user_class, user_class_probabilities, environment):
-        self.contexts = [ContextContainer(user_class, user_class_probabilities, environment)]
+    def __init__(self, user_class, user_class_probabilities, environment,n_arms):
+        self.contexts = [ContextContainer(user_class, user_class_probabilities, environment, n_arms)]
         self.rewards = []
         self.opt = 0
         for i in range(0, 3):
@@ -37,8 +37,8 @@ min_price = 0.0
 max_price = 1.0
 prices = np.linspace(min_price, max_price, n_arms)
 
-rewards = [rewards(prices) for i in range(0, 3)]
-environment = [Environment(n_arms=n_arms, probabilities=rewards) for i in range(0, 3)]
+rewards = [rewards(prices, max_price) for i in range(0, 3)]
+environment = [Environment(n_arms=n_arms, probabilities=rewards) for cls in range(0, 3)]
 
 ts_rewards_per_experiment = []
 
@@ -48,7 +48,7 @@ user_class_probabilities = [0.2, 0.5, 0.3]
 for e in range(0, n_experiment):
     opt_per_round = 0
     context_generator = ContextsGenerator(user_class=user_class, user_class_probabilities=user_class_probabilities,
-                                          environment=environment)
+                                          environment=environment, n_arms=n_arms)
 
     for t in range(0, T):
         if (t + 1) % 7 == 0:
