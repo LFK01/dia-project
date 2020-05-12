@@ -1,19 +1,16 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 from src.context_generation.ContextContainer import *
 from src.pricing.reward_function import rewards
 from src.pricing.environment import *
+from tqdm import tqdm
 
 
 class ContextsGenerator:
     def __init__(self, user_class, user_class_probabilities, environment, n_arms):
         self.contexts = [ContextContainer(user_class, user_class_probabilities, environment, n_arms)]
         self.rewards = []
-        self.opt = 0
-        for i in range(0, 3):
-            self.opt += user_class_probabilities[i] * np.amax(
-                [environment[i].round(arm) for arm in range(0, environment[i].n_arms)])
+        self.opt = []
 
     # Create a new context trying to split each of the context
     def generate_new_context(self):
@@ -23,7 +20,6 @@ class ContextsGenerator:
                 self.contexts.pop(i)  # Remove the current context that has been splitted
                 for s in split:
                     self.contexts.append(s)  # Insert the new created context
-                print(len(self.contexts))
                 break
             except:
                 continue
@@ -34,7 +30,12 @@ class ContextsGenerator:
         for c in self.contexts:
             total_rewards += c.run_TS()
 
+        opt_per_round = 0
+        for c in self.contexts:
+            opt_per_round += c.get_opt()
+
         self.rewards.append(total_rewards)
+        self.opt.append(opt_per_round)
 
 
 def optimal_for_partition(classes_of_partition, all_probabilities, all_rewards):
@@ -63,8 +64,8 @@ def compute_optimum(all_classes, all_probabilities, all_rewards):
 
 
 if __name__ == '__main__':
-    T = 1400
-    n_experiment = 400
+    T = 18250
+    n_experiment = 100
 
     n_arms = 11
     min_price = 0.0
@@ -77,28 +78,38 @@ if __name__ == '__main__':
     environment = [Environment(n_arms=n_arms, probabilities=rewards[cls]) for cls in range(0, 3)]
 
     ts_rewards_per_experiment = []
+    opt_per_experiment = []
 
     user_class = [0, 1, 2]
-    user_class_probabilities = [0.3, 0.3, 0.4]
+    user_class_probabilities = [0.1, 0.5, 0.4]
 
-    for e in range(0, n_experiment):
+    for e in tqdm(range(0, n_experiment), desc="Experiment processed", unit="exp"):
         context_generator = ContextsGenerator(user_class=user_class, user_class_probabilities=user_class_probabilities,
                                               environment=environment, n_arms=n_arms)
         for t in range(0, T):
             # Every 7 days try the new context generation
-            if (t + 1) % 7 == 0:
+            if (t + 1) % 350 == 0:
                 context_generator.generate_new_context()
             context_generator.run_ts()
 
+        # print("Experiment ", e)
+        # for contextId in range(0, len(context_generator.contexts)):
+        #     context_generator.contexts[contextId].print_context(contextId)
+
         # Collect the rewards for each experiment
         ts_rewards_per_experiment.append(context_generator.rewards)
+        opt_per_experiment.append(context_generator.opt)
 
     # TODO Calcolare il regret tramite opt e ts_rewards_per_experiment
-    ts_instantaneous_regret = compute_optimum(user_class, user_class_probabilities, rewards) - np.mean(ts_rewards_per_experiment, axis=0)
+    # ts_instantaneous_regret = compute_optimum(user_class, user_class_probabilities, rewards) - np.mean(
+    #     ts_rewards_per_experiment, axis=0)
+    ts_instantaneous_regret = np.mean(np.array(opt_per_experiment) -
+                                      np.array(ts_rewards_per_experiment), axis=0)
     # plot the results
     print("Opt: ")
     np.set_printoptions(precision=3)
-    print(compute_optimum(user_class, user_class_probabilities, rewards))
+    # print(compute_optimum(user_class, user_class_probabilities, rewards))
+    print(np.mean(opt_per_experiment, axis=0))
     print("Rewards")
     np.set_printoptions(precision=3)
     print(ts_rewards_per_experiment)
@@ -109,7 +120,7 @@ if __name__ == '__main__':
     plt.ylabel("Reward")
     plt.xlabel("t")
     plt.plot(np.mean(ts_rewards_per_experiment, axis=0), 'g')
-    plt.plot(context_generator.opt, '--k')
+    plt.plot(np.mean(opt_per_experiment, axis=0), 'r')
     plt.legend(["TS", "Optimum"])
     plt.show()
 

@@ -75,7 +75,7 @@ class ContextContainer:
             probabilities2 = [self.__probabilities[i] for i in userclass2]
             environment1 = [self.__environment[i] for i in userclass1]
             environment2 = [self.__environment[i] for i in userclass2]
-            print("splitting1:", userclass1, "splitting 2:", userclass2, "\n")
+            # print("splitting1:", userclass1, "splitting 2:", userclass2, "\n")
             return [ContextContainer(userclass1, probabilities1, environment1, self.__n_arms,
                                      new_contexts_learners[0]), ContextContainer(userclass2, probabilities2,
                                                                                  environment2, self.__n_arms,
@@ -92,8 +92,18 @@ class ContextContainer:
             empirical_mean += np.mean(self.__reward_per_arm[cls][optimal_arm_index])
             context_probability += self.__probabilities[cls]
         return context_probability * (empirical_mean - m.sqrt(
-            -m.log10(confidence) / len(
+            -m.log10(1 - confidence) / 2 * len(
                 self.__reward_per_arm[context_classes[0]][optimal_arm_index])))
+
+    def get_opt(self):
+        opt_per_arm = np.zeros(self.__n_arms)
+        for c in range(0, len(self.__context)):
+            for arm in range(0, self.__n_arms):
+                opt_per_arm[arm] += self.__environment[c].probabilities[arm] * self.__probabilities[c]
+        return np.max(opt_per_arm)
+
+    def print_context(self, id):
+        print("Context ", id, ": ", self.__context)
 
 
 if __name__ == "__main__":
