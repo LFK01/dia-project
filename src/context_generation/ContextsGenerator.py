@@ -8,17 +8,24 @@ class ContextsGenerator:
     def __init__(self, user_class, user_class_probabilities, environment):
         self.contexts = [ContextContainer(user_class, user_class_probabilities, environment)]
         self.rewards = []
-        self.opt = []
+        self.opt = 0
+        for i in range(0, 3):
+            self.opt += np.max(environment[i].round(arm) for arm in range(0, environment[i].n_arms))
 
     # Metodo per ricreare un nuovo contesto
     def generate_new_context(self):
-        return
+        new_context = []
+        for c in self.contexts:
+            new_context.append(c.split_context())
+
+        self.contexts = [new_context]
 
     # chiama il TS in ogni contesto
-    def run_TS(self):
+    def run_ts(self):
         total_rewards = 0
         for c in self.contexts:
             total_rewards += c.run_TS()
+            
         self.rewards.append(total_rewards)
 
 
@@ -46,7 +53,7 @@ for e in range(0, n_experiment):
     for t in range(0, T):
         if (t + 1) % 7 == 0:
             context_generator.generate_new_context()
-        context_generator.run_TS()
+        context_generator.run_ts()
 
     ts_rewards_per_experiment.append(context_generator.rewards)
 
