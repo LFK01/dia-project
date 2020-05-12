@@ -1,5 +1,7 @@
 from src.context_generation.ts_learner_contexts import *
 import math as m
+from src.pricing.reward_function import rewards
+from src.pricing.environment import *
 
 # it is the level of confidence
 confidence = 0.95
@@ -43,28 +45,34 @@ class ContextContainer:
     # by comparing the lower bound multiplied by the probability of it and the sum of the lower bounds of the divided
     # contexts multiplied each one with the related probability
     def split_context(self):
-        current_context_bound = self.__compute_hoeffding_bounds(self.__context, self.__context_optimal_arm)
-        possible_splitting = []
-        splitting_bounds = []
-        splitting_values = []
-        for cls in self.__context:
-            possible_splitting.append([list(set(self.__context) - {cls}), [cls]])
-            optimal_arms = [self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][0]),
-                            self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][1])]
-            splitting_bounds.append([self.__compute_hoeffding_bounds(possible_splitting[-1][0], optimal_arms[0]),
-                                     self.__compute_hoeffding_bounds(possible_splitting[-1][1], optimal_arms[1])])
-            splitting_values.append(splitting_bounds[-1][0] + splitting_bounds[-1][1])
-        index = int(np.argmax(splitting_values))
-        if current_context_bound <= splitting_values[index]:
-            userclass1 = possible_splitting[index][0]
-            userclass2 = possible_splitting[index][0]
-            new_contexts_learners = self.__ts_learner_context.split_in_2(userclass1, userclass2)
-            probabilities1 = [self.__probabilities[i] for i in userclass1]
-            probabilities2 = [self.__probabilities[i] for i in userclass2]
-            environment1 = [self.__environment[i] for i in userclass1]
-            environment2 = [self.__environment[i] for i in userclass2]
-            return [self.__init__(userclass1, probabilities1, environment1, self.__n_arms, new_contexts_learners[0]),
+        if len(self.__context) == 1:
+            return self
+        else:
+            current_context_bound = self.__compute_hoeffding_bounds(self.__context, self.__context_optimal_arm)
+            possible_splitting = []
+            splitting_bounds = []
+            splitting_values = []
+            for cls in self.__context:
+                possible_splitting.append([list(set(self.__context) - {cls}), [cls]])
+                optimal_arms = [self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][0]),
+                                self.__ts_learner_context.get_best_arm_sub_context(possible_splitting[-1][1])]
+                splitting_bounds.append([self.__compute_hoeffding_bounds(possible_splitting[-1][0], optimal_arms[0]),
+                                         self.__compute_hoeffding_bounds(possible_splitting[-1][1], optimal_arms[1])])
+                splitting_values.append(splitting_bounds[-1][0] + splitting_bounds[-1][1])
+            index = int(np.argmax(splitting_values))
+            if current_context_bound <= splitting_values[index]:
+                userclass1 = possible_splitting[index][0]
+                userclass2 = possible_splitting[index][1]
+                new_contexts_learners = self.__ts_learner_context.split_in_2(userclass1, userclass2)
+                probabilities1 = [self.__probabilities[i] for i in userclass1]
+                probabilities2 = [self.__probabilities[i] for i in userclass2]
+                environment1 = [self.__environment[i] for i in userclass1]
+                environment2 = [self.__environment[i] for i in userclass2]
+                return [
+                    self.__init__(userclass1, probabilities1, environment1, self.__n_arms, new_contexts_learners[0]),
                     self.__init__(userclass2, probabilities2, environment2, self.__n_arms, new_contexts_learners[1])]
+            else:
+                return self
 
     # Private method used for calculating the hoeffding bound given the classes with which calculate it and the optimal
     # arm index
@@ -76,3 +84,23 @@ class ContextContainer:
             context_probability += self.__probabilities[cls]
         return context_probability * (empirical_mean - m.sqrt(
             -m.log10(confidence) / len(self.__reward_per_arm[context_classes[0]][optimal_arm_index])))
+
+
+if __name__ == "__main__":
+    prob = [0.5, 0.3, 0.2]
+    arm = 11
+    classes = [0, 1, 2]
+    min_price = 0.0
+    max_price = 1.0
+    prices = np.linspace(min_price, max_price, arm)
+    rewards = [rewards(prices, max_price) for i in range(0, 3)]
+    environments = [Environment(n_arms=arm, probabilities=rewards[cls]) for cls in range(0, 3)]
+    obj = ContextContainer(classes, prob, environments, arm)
+    for i in range(0, 200):
+        obj.run_TS()
+    containers = obj.split_context()
+    for i in range(0, 100):
+        if containers is not None and len(containers) == 2:
+            containers[0].run_TS()
+            containers[1].run_TS()
+    print("done")
