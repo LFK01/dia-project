@@ -15,19 +15,13 @@ n_arms = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
 
 subcampaigns = [0, 1, 2]
 
-probabilities_vector = np.array([1/4, 1/2, 1/4])
+probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
 
 conversion_prices = np.linspace(min_price, max_price, n_arms)
 all_rewards_vector = []
 
 rewards = rewards(conversion_prices, max_price)
 
-for probability in probabilities_vector:
-    all_rewards_vector.append(rewards * probability)
-
-all_rewards_vector = np.array(all_rewards_vector)
-
-aggregated_curve = np.sum(all_rewards_vector, axis=0)
 opt = np.max(rewards)
 rewards_normalized = np.divide(rewards, opt)
 opt_normalized = np.divide(opt, opt)
@@ -42,35 +36,49 @@ for subcampaign in range(len(subcampaigns)):
 
 for e in range(0, n_experiments):
 
-    gr_learners = []
-    ts_learners = []
+    ts_learner = TSLearner(n_arms=n_arms,
+                           probabilities=probabilities_vector,
+                           number_of_classes=len(probabilities_vector))
+    gr_learner = GreedyLearner(n_arms=n_arms,
+                               probabilities=probabilities_vector,
+                               number_of_classes=len(probabilities_vector))
 
     for subcampaign in range(len(subcampaigns)):
         environments.append(Environment(n_arms, rewards_normalized))
-        ts_learners.append(TSLearner(n_arms=n_arms))
-        gr_learners.append(GreedyLearner(n_arms=n_arms))
+
     for t in range(0, T):
         # Thompson Sampling Learner
+        pulled_arm = ts_learner.pull_arm()
+
+        reward_per_round = []
+
         for subcampaign in range(len(subcampaigns)):
-            pulled_arm = ts_learners[subcampaign].pull_arm()
-            reward = environments[subcampaign].round(pulled_arm)
-            ts_learners[subcampaign].update(pulled_arm, reward)
+            reward_per_round.append(environments[subcampaign].round(pulled_arm))
+
+        ts_learner.update(pulled_arm, reward_per_round)
 
         # Greedy Learner
+        pulled_arm = gr_learner.pull_arm()
+
+        reward_per_round = []
+
         for subcampaign in range(len(subcampaigns)):
-            pulled_arm = gr_learners[subcampaign].pull_arm()
-            reward = environments[subcampaign].round(pulled_arm)
-            gr_learners[subcampaign].update(pulled_arm, reward)
+            reward_per_round.append(environments[subcampaign].round(pulled_arm))
+        gr_learner.update(pulled_arm, reward_per_round)
 
     for subcampaign in range(len(subcampaigns)):
-        ts_rewards_per_experiment[subcampaign].append(ts_learners[subcampaign].collected_rewards)
-        gr_rewards_per_experiment[subcampaign].append(gr_learners[subcampaign].collected_rewards)
+        ts_rewards_per_experiment[subcampaign]\
+            .append(np.average(a=ts_learner.collected_rewards, axis=0, weights=probabilities_vector))
+        gr_rewards_per_experiment[subcampaign]\
+            .append(np.average(a=gr_learner.collected_rewards, axis=0, weights=probabilities_vector))
 
 fig, axs = plt.subplots(3, 2, figsize=(14, 8))
 for subcampaign in range(len(subcampaigns)):
     # axs[subcampaign, 0].figure("subcampaign" + str(subcampaign) + ".1")
-    axs[subcampaign, 0].plot(np.cumsum(np.mean(np.array(opt_normalized) - ts_rewards_per_experiment[subcampaign], axis=0)), 'r')
-    axs[subcampaign, 0].plot(np.cumsum(np.mean(np.array(opt_normalized) - gr_rewards_per_experiment[subcampaign], axis=0)), 'g')
+    axs[subcampaign, 0].plot(
+        np.cumsum(np.mean(np.array(opt_normalized) - ts_rewards_per_experiment[subcampaign], axis=0)), 'r')
+    axs[subcampaign, 0].plot(
+        np.cumsum(np.mean(np.array(opt_normalized) - gr_rewards_per_experiment[subcampaign], axis=0)), 'g')
     axs[subcampaign, 0].legend(["TS", "Greedy"])
 
     # axs.figure("subcampaign" + str(subcampaign) + ".2")
