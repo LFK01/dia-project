@@ -14,8 +14,15 @@ class TSLearner(Learner):
         #           array([0.        , 0.03448276, ... 0.96551724, 1.        ])]
         self.rewards_per_arm = [[[] for i in range(n_arms)] for j in range(number_of_classes)]
         self.collected_rewards = [[] for i in range(number_of_classes)]
+        self.prices = None
         self.probabilities = probabilities
         self.number_of_classes = number_of_classes
+
+    def get_price_from_index(self, idx):
+        return self.prices[idx]
+
+    def set_prices(self, prices):
+        self.prices = prices
 
     def pull_arm(self):
         scores = np.zeros((self.number_of_classes, self.n_arms))
@@ -36,3 +43,14 @@ class TSLearner(Learner):
         for cls in range(0, self.number_of_classes):
             self.rewards_per_arm[cls][pulled_arm].append(reward[cls])
             self.collected_rewards[cls].append(reward[cls])
+
+    def pull_arm_with_conversion_rate(self):
+        scores = np.zeros((self.number_of_classes, self.n_arms))
+        for cls in range(0, self.number_of_classes):
+            scores[cls] = (np.random.beta(self.beta_parameters[cls, :, 0], self.beta_parameters[cls, :, 1]) *
+                           self.probabilities[cls])
+        index = np.argmax(scores.sum(axis=0))
+        conversion_rate_vector = []
+        for cls in range(0, self.number_of_classes):
+            conversion_rate_vector.append(scores[cls][index])
+        return np.argmax(scores.sum(axis=0)), conversion_rate_vector
