@@ -49,8 +49,8 @@ class TSLearner(Learner):
         for cls in range(0, self.number_of_classes):
             scores[cls] = (np.random.beta(self.beta_parameters[cls, :, 0], self.beta_parameters[cls, :, 1]) *
                            self.probabilities[cls])
-        index = np.argmax(scores.sum(axis=0))
+        index = np.argmax(np.sum(scores, axis=0))
         conversion_rate_vector = []
         for cls in range(0, self.number_of_classes):
-            conversion_rate_vector.append(scores[cls][index])
-        return np.argmax(scores.sum(axis=0)), conversion_rate_vector
+            conversion_rate_vector.append(scores[cls, index])
+        return index, conversion_rate_vector

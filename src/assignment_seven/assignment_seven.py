@@ -9,7 +9,7 @@ from src.advertising.environment.click_budget import ClickBudget as AdvertisingE
 from src.pricing.reward_function import rewards
 from src.pricing.ts_learner import TSLearner
 
-T = 300
+T = 500
 
 n_experiments = 1
 
@@ -34,7 +34,6 @@ rewards = rewards(conversion_prices, max_value_pricing)
 opt_pricing = np.max(rewards)
 rewards_normalized = np.divide(rewards, opt_pricing)
 
-ts_rewards_per_experiment_pricing = []
 gp_rewards_per_experiment_advertising = []
 
 environments_pricing = []
@@ -44,7 +43,6 @@ ts_learner_pricing = None
 gpts_learner_advertising = []
 
 for s in subcampaigns:
-    ts_rewards_per_experiment_pricing.append([])
     environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, probabilities=rewards_normalized))
     environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budget, sigma=sigma_advertising))
 
@@ -62,7 +60,7 @@ for e in range(0, n_experiments):
     for s in subcampaigns:
         gpts_learner_advertising.append(GPTSLearner(n_arms=n_arms_advertising, arms=daily_budget))
 
-    description = 'Experiment ' + str(e+1) + ' - Time processed'
+    description = 'Experiment ' + str(e + 1) + ' - Time processed'
     for t in tqdm(range(0, T), desc=description, unit='t'):
 
         values_combination_of_each_subcampaign = []
@@ -76,12 +74,13 @@ for e in range(0, n_experiments):
 
         for s in subcampaigns:
             reward_pricing.append(environments_pricing[s].round(price_index))
+        ts_learner_pricing.update(price_index, reward_pricing)
+
+        for s in subcampaigns:
             # advertising
             click_numbers_vector = np.array(gpts_learner_advertising[s].pull_arm())
             modified_rewards = click_numbers_vector * proposed_price * conversion_rate_vector[s]
             values_combination_of_each_subcampaign.append(modified_rewards.tolist())
-
-        ts_learner_pricing.update(price_index, reward_pricing)
 
         # At the and of the GP_TS algorithm of all the sub campaign, run the Knapsack optimization
         # and save the chosen arm of each sub campaign
