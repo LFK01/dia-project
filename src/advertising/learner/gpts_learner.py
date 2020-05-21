@@ -18,7 +18,7 @@ class GPTSLearner(Learner):
         self.gp = GaussianProcessRegressor(kernel=kernel,
                                            alpha=self.alpha ** 2,
                                            normalize_y=True,
-                                           n_restarts_optimizer=10)
+                                           n_restarts_optimizer=9)
         self.x_obs = np.array([])
         self.y_obs = np.array([])
 
@@ -31,6 +31,9 @@ class GPTSLearner(Learner):
     def update_model(self):
         x = np.atleast_2d(self.pulled_arms).T
         y = self.collected_rewards
+
+        # Normalization of X
+        # x = preprocessing.scale(x)
 
         # Fit the model
         self.update_prediction(x, y)
@@ -78,15 +81,23 @@ class GPTSLearner(Learner):
         self.predicted_arms = np.maximum(0, self.predicted_arms)
 
     # Generate a Gaussian Process with the observed value (not used but will be useful in future)
-    def generate_gaussian_process(self, new_x_obs, new_y_obs):
+    def generate_gaussian_process(self, new_x_obs, new_y_obs, sw=False):
         self.x_obs = np.append(self.x_obs, new_x_obs)
         self.y_obs = np.append(self.y_obs, new_y_obs)
 
         x = np.atleast_2d(self.x_obs).T
         y = self.y_obs.ravel()
-        kernel = self.gp.kernel
-        self.gp = GaussianProcessRegressor(kernel=kernel,
-                                           alpha=self.alpha ** 2,
-                                           normalize_y=True,
-                                           n_restarts_optimizer=10)
+
+        if sw:
+            kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-3, 1e3))
+            self.gp = GaussianProcessRegressor(kernel=kernel,
+                                               alpha=self.alpha ** 2,
+                                               normalize_y=True,
+                                               n_restarts_optimizer=9)
         self.gp.fit(x, y)
+
+        kernel = self.gp.kernel_
+        self.gp = GaussianProcessRegressor(kernel=kernel,
+                                           alpha=self.gp.alpha,
+                                           normalize_y=True,
+                                           n_restarts_optimizer=0)

@@ -11,14 +11,14 @@ subcampaign = [0, 1, 2]
 
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 10
+n_arms = 40
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 10
 
 # Time horizon
-T = 10
+T = 60
 # Number of experiments
-n_experiments = 1
+n_experiments = 100
 
 collected_rewards_per_experiments = []
 env = []
@@ -31,8 +31,16 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
     gpts_learner = []
     total_clicks_per_t = []
     for s in subcampaign:
-        env.append(ClickBudget(s, budgets=daily_budget, sigma=sigma))
+        env.append(ClickBudget(s, budgets=daily_budget, sigma=sigma, function_type=s))
         gpts_learner.append(GPTSLearner(n_arms=n_arms, arms=daily_budget))
+        
+        # Learning of hyperparameters before starting the algorithm
+        new_x = []
+        new_y = []
+        for i in range(0, 80):
+            new_x.append(np.random.choice(daily_budget, 1))
+            new_y.append(env[s].round(np.where(daily_budget == new_x[i])))
+        gpts_learner[s].generate_gaussian_process(new_x, new_y)
 
     # For each t in the time horizon, run the GP_TS algorithm
     for t in range(0, T):
@@ -82,6 +90,7 @@ plt.xlabel("t")
 plt.plot(np.cumsum(np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)), 'g')
 plt.legend(["Cumulative Regret"])
 plt.show()
+plt.savefig("plot/cumreg")
 
 plt.figure()
 plt.ylabel("Regret")
@@ -89,3 +98,4 @@ plt.xlabel("t")
 plt.plot((np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)), 'r')
 plt.legend(["Regret"])
 plt.show()
+plt.savefig("plot/reg")
