@@ -20,7 +20,7 @@ T = n_phases * 100
 # Window size proportional to the square root of T and always integer
 window_size = int(np.sqrt(T) * 4.1)
 # Number of experiments
-n_experiments = 1
+n_experiments = 5
 
 # BUILD OF THE 3 ENVIRONMENTS. ONE FOR EACH SUBCAMPAIGN. The single environment is not stationary
 # define the values of the x
@@ -63,6 +63,17 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 
     # For each t in the time horizon, run the GP_TS algorithm
     for t in range(0, T):
+        if t % (T / n_phases) == 0:
+            for s in subcampaign:
+                # Learning of hyperparameters before starting the algorithm
+                new_x = []
+                new_y = []
+                for i in range(0, 100):
+                    new_x.append(np.random.choice(daily_budget, 1))
+                    new_y.append(env[s].round(np.where(daily_budget == new_x[i]), t))
+                gpts_learner[s].generate_gaussian_process(new_x, new_y, sw=True)
+                sw_gpts_learner[s].generate_gaussian_process(new_x, new_y, sw=True)
+
         total_subcampaign_combination = []
         sw_total_subcampaign_combination = []
         for s in subcampaign:
@@ -78,7 +89,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
         total_clicks = 0
         sw_total_clicks = 0
         for s in subcampaign:
-            #TS
+            # TS
             reward = env[s].round(superarm[s], t)
             total_clicks += reward
             gpts_learner[s].update(superarm[s], reward)
@@ -88,13 +99,13 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
             sw_total_clicks += sw_reward
             sw_gpts_learner[s].update(sw_superarm[s], sw_reward, window_size, True)
 
-    total_clicks_per_t.append(total_clicks)
-    sw_total_clicks_per_t.append(sw_total_clicks)
+        total_clicks_per_t.append(total_clicks)
+        sw_total_clicks_per_t.append(sw_total_clicks)
 
-# At the end of each experiment, save the total click of each t of this experiment
-collected_rewards_per_experiments.append(total_clicks_per_t)
-sw_collected_rewards_per_experiments.append(sw_total_clicks_per_t)
-time.sleep(0.01)
+    # At the end of each experiment, save the total click of each t of this experiment
+    collected_rewards_per_experiments.append(total_clicks_per_t)
+    sw_collected_rewards_per_experiments.append(sw_total_clicks_per_t)
+    time.sleep(0.01)
 
 # Initialize the instantaneous regrets and the optimum per each round
 # computation of the optimal budget combination for each abrupt phase
