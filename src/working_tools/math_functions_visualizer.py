@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
+from src.pricing.reward_function import rewards
 
 if __name__ == '__main__':
     x = np.linspace(0, 1, num=111, endpoint=True)
@@ -23,3 +24,4 @@ if __name__ == '__main__':
     plt.plot(x_new, f4(x_new), '-', x_new, f5(x_new), '--', x_new, f6(x_new), ':')
     plt.legend(['data', 'nearest', 'previous', 'next'], loc='best')
     plt.show()
+
