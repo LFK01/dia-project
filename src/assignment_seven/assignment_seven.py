@@ -9,9 +9,9 @@ from src.advertising.environment.click_budget import ClickBudget as AdvertisingE
 from src.pricing.reward_function import rewards
 from src.pricing.ts_learner import TSLearner
 
-T = 500
+T = 200
 
-n_experiments = 1
+n_experiments = 10
 
 subcampaigns = [0, 1, 2]
 user_classes_probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
@@ -60,6 +60,14 @@ for e in range(0, n_experiments):
     for s in subcampaigns:
         gpts_learner_advertising.append(GPTSLearner(n_arms=n_arms_advertising, arms=daily_budget))
 
+        # Learning of hyperparameters before starting the algorithm
+        new_x = []
+        new_y = []
+        for i in range(0, 80):
+            new_x.append(np.random.choice(daily_budget, 1))
+            new_y.append(environments_advertising[s].round(np.where(daily_budget == new_x[i])))
+        gpts_learner_advertising[s].generate_gaussian_process(new_x, new_y)
+
     description = 'Experiment ' + str(e + 1) + ' - Time processed'
     for t in tqdm(range(0, T), desc=description, unit='t'):
 
@@ -106,11 +114,15 @@ conversion_rate_list = []
 best_price_list = []
 
 conversion_rates_np_array = np.array([environment.probabilities for environment in environments_pricing])
-weighted_mean_conversion_rates = np.average(conversion_rates_np_array,
-                                            weights=user_classes_probabilities_vector,
-                                            axis=0)
-best_conversion_rate = np.max(weighted_mean_conversion_rates)
-index_of_best_conversion_rate = np.argwhere(weighted_mean_conversion_rates == best_conversion_rate).flatten()
+scores = np.zeros((3, n_arms_pricing))
+for cls in range(0, 3):
+    scores[cls] = environments_pricing[cls].probabilities
+index_of_best_conversion_rate = np.argmax(np.sum(scores, axis=0))
+# weighted_mean_conversion_rates = np.average(conversion_rates_np_array,
+#                                             weights=user_classes_probabilities_vector,
+#                                             axis=0)
+# best_conversion_rate = np.max(weighted_mean_conversion_rates)
+# index_of_best_conversion_rate = np.argwhere(weighted_mean_conversion_rates == best_conversion_rate).flatten()
 best_price = ts_learner_pricing.prices[index_of_best_conversion_rate].flatten()
 
 for s in subcampaigns:

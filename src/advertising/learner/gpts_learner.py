@@ -82,11 +82,13 @@ class GPTSLearner(Learner):
 
     # Generate a Gaussian Process with the observed value (not used but will be useful in future)
     def generate_gaussian_process(self, new_x_obs, new_y_obs, sw=False):
+        self.x_obs = np.array([])
+        self.y_obs = np.array([])
         self.x_obs = np.append(self.x_obs, new_x_obs)
         self.y_obs = np.append(self.y_obs, new_y_obs)
 
         x = np.atleast_2d(self.x_obs).T
-        y = self.y_obs.ravel()
+        y = self.y_obs
 
         if sw:
             kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-3, 1e3))
