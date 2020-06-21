@@ -48,7 +48,7 @@ class Knapsack:
         # sol_3_arm = n_columns - 1 - np.argmax(self.dp_table[3][::-1])
         sol_3_arm = len(self.budgets) - 1
 
-        # assign the arm for the third subcampaign by selecting the arm saved in the best_arm table
+        # assign the arm for the third subcampaign by selecting the arm saved in the best_arm_index table
         solution[2] = self.best_arm[2][sol_3_arm]
 
         # the column of the second subcampaign associated to the optimal solution is the one at index

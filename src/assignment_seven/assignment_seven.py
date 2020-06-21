@@ -9,9 +9,9 @@ from src.advertising.environment.click_budget import ClickBudget as AdvertisingE
 from src.pricing.reward_function import rewards
 from src.pricing.ts_learner import TSLearner
 
-T = 200
+T = 80
 
-n_experiments = 10
+n_experiments = 1
 
 subcampaigns = [0, 1, 2]
 user_classes_probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
@@ -47,64 +47,64 @@ for s in subcampaigns:
     environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budget, sigma=sigma_advertising))
 
 for e in range(0, n_experiments):
+    total_revenue_per_arm = []
+    for price_index in range(n_arms_pricing):
+        ts_learner_pricing = TSLearner(n_arms=n_arms_pricing,
+                                       probabilities=user_classes_probabilities_vector,
+                                       number_of_classes=len(user_classes_probabilities_vector))
+        ts_learner_pricing.set_prices(conversion_prices)
 
-    ts_learner_pricing = TSLearner(n_arms=n_arms_pricing,
-                                   probabilities=user_classes_probabilities_vector,
-                                   number_of_classes=len(user_classes_probabilities_vector))
-    ts_learner_pricing.set_prices(conversion_prices)
-
-    gpts_learner_advertising = []
-
-    total_revenue_per_t = []
-
-    for s in subcampaigns:
-        gpts_learner_advertising.append(GPTSLearner(n_arms=n_arms_advertising, arms=daily_budget))
-
-        # Learning of hyperparameters before starting the algorithm
-        new_x = []
-        new_y = []
-        for i in range(0, 80):
-            new_x.append(np.random.choice(daily_budget, 1))
-            new_y.append(environments_advertising[s].round(np.where(daily_budget == new_x[i])))
-        gpts_learner_advertising[s].generate_gaussian_process(new_x, new_y)
-
-    description = 'Experiment ' + str(e + 1) + ' - Time processed'
-    for t in tqdm(range(0, T), desc=description, unit='t'):
-
-        values_combination_of_each_subcampaign = []
-
-        # Thompson Sampling and GP-TS Learner
-
-        price_index, conversion_rate_vector = ts_learner_pricing.pull_arm_with_conversion_rate()
-        proposed_price = ts_learner_pricing.get_price_from_index(idx=price_index)
-
-        reward_pricing = []
+        gpts_learner_advertising = []
+        total_revenue_per_t = []
 
         for s in subcampaigns:
-            reward_pricing.append(environments_pricing[s].round(price_index))
-        ts_learner_pricing.update(price_index, reward_pricing)
+            gpts_learner_advertising.append(GPTSLearner(n_arms=n_arms_advertising, arms=daily_budget))
 
-        for s in subcampaigns:
-            # advertising
-            click_numbers_vector = np.array(gpts_learner_advertising[s].pull_arm())
-            modified_rewards = click_numbers_vector * proposed_price * conversion_rate_vector[s]
-            values_combination_of_each_subcampaign.append(modified_rewards.tolist())
+            # Learning of hyper parameters before starting the algorithm
+            new_x = []
+            new_y = []
+            for i in range(0, 80):
+                new_x.append(np.random.choice(daily_budget, 1))
+                new_y.append(environments_advertising[s].round(np.where(daily_budget == new_x[i])))
+            gpts_learner_advertising[s].generate_gaussian_process(new_x, new_y)
 
-        # At the and of the GP_TS algorithm of all the sub campaign, run the Knapsack optimization
-        # and save the chosen arm of each sub campaign
+        description = 'Experiment ' + str(e + 1) + ', Arm ' + str(price_index + 1) + ' - Time processed'
+        for t in tqdm(range(0, T), desc=description, unit='t'):
 
-        superarm = Knapsack(values_combination_of_each_subcampaign, daily_budget).solve()
+            values_combination_of_each_subcampaign = []
 
-        # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
-        total_revenue = 0
-        for s in subcampaigns:
-            reward_advertising = environments_advertising[s].round(superarm[s])
-            total_revenue += reward_advertising * proposed_price * conversion_rate_vector[s]
-            gpts_learner_advertising[s].update(superarm[s], reward_advertising)
+            # Thompson Sampling and GP-TS Learner
+            conversion_rate_vector = ts_learner_pricing.get_conversion_rate(price_index)
+            proposed_price = ts_learner_pricing.get_price_from_index(idx=price_index)
 
-        total_revenue_per_t.append(total_revenue)
+            reward_pricing = []
 
-    gp_rewards_per_experiment_advertising.append(total_revenue_per_t)
+            for s in subcampaigns:
+                reward_pricing.append(environments_pricing[s].round(price_index))
+            ts_learner_pricing.update(price_index, reward_pricing)
+
+            for s in subcampaigns:
+                # advertising
+                click_numbers_vector = np.array(gpts_learner_advertising[s].pull_arm())
+                modified_rewards = click_numbers_vector * proposed_price * conversion_rate_vector[s]
+                values_combination_of_each_subcampaign.append(modified_rewards.tolist())
+
+            # At the and of the GP_TS algorithm of all the sub campaign, run the Knapsack optimization
+            # and save the chosen arm of each sub campaign
+
+            superarm = Knapsack(values_combination_of_each_subcampaign, daily_budget).solve()
+
+            # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
+            total_revenue = 0
+            for s in subcampaigns:
+                reward_advertising = environments_advertising[s].round(superarm[s])
+                total_revenue += reward_advertising * proposed_price * conversion_rate_vector[s]
+                gpts_learner_advertising[s].update(superarm[s], reward_advertising)
+
+            total_revenue_per_t.append(total_revenue)
+        total_revenue_per_arm.append(total_revenue_per_t)
+    best_arm_index = int(np.argmax(np.array(total_revenue_per_arm)[:, -1]))
+    gp_rewards_per_experiment_advertising.append(total_revenue_per_arm[best_arm_index])
 
 # Find the optimal value executing the Knapsack optimization on the different environment
 

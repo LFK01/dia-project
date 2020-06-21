@@ -54,3 +54,13 @@ class TSLearner(Learner):
         for cls in range(0, self.number_of_classes):
             conversion_rate_vector.append(scores[cls, index])
         return index, conversion_rate_vector
+
+    def get_conversion_rate(self, index):
+        scores = np.zeros((self.number_of_classes, self.n_arms))
+        for cls in range(0, self.number_of_classes):
+            scores[cls] = (np.random.beta(self.beta_parameters[cls, :, 0], self.beta_parameters[cls, :, 1]) *
+                           self.probabilities[cls])
+        conversion_rate_vector = []
+        for cls in range(0, self.number_of_classes):
+            conversion_rate_vector.append(scores[cls, index])
+        return conversion_rate_vector
