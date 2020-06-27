@@ -11,14 +11,14 @@ from src.pricing.ts_learner import TSLearner
 
 T = 80
 
-n_experiments = 1
+n_experiments = 5
 
 subcampaigns = [0, 1, 2]
 user_classes_probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
 
 min_value_advertising = 0.0
 max_value_advertising = 1.0
-sigma_advertising = 10
+sigma_advertising = 1
 
 n_arms_advertising = 21
 
@@ -98,31 +98,30 @@ for e in range(0, n_experiments):
             total_revenue = 0
             for s in subcampaigns:
                 reward_advertising = environments_advertising[s].round(superarm[s])
-                total_revenue += reward_advertising * proposed_price * conversion_rate_vector[s]
+                total_revenue += reward_advertising * proposed_price * environments_pricing[s].probabilities[price_index]
                 gpts_learner_advertising[s].update(superarm[s], reward_advertising)
 
             total_revenue_per_t.append(total_revenue)
         total_revenue_per_arm.append(total_revenue_per_t)
-    best_arm_index = int(np.argmax(np.array(total_revenue_per_arm)[:, -1]))
-    gp_rewards_per_experiment_advertising.append(total_revenue_per_arm[best_arm_index])
+    gp_rewards_per_experiment_advertising.append(total_revenue_per_arm)
 
 # Find the optimal value executing the Knapsack optimization on the different environment
-
+gp_rewards_per_experiment_advertising = np.array(gp_rewards_per_experiment_advertising)
 total_optimal_combination = []
 
 conversion_rate_list = []
 best_price_list = []
 
 conversion_rates_np_array = np.array([environment.probabilities for environment in environments_pricing])
-scores = np.zeros((3, n_arms_pricing))
-for cls in range(0, 3):
-    scores[cls] = environments_pricing[cls].probabilities
-index_of_best_conversion_rate = np.argmax(np.sum(scores, axis=0))
-# weighted_mean_conversion_rates = np.average(conversion_rates_np_array,
-#                                             weights=user_classes_probabilities_vector,
-#                                             axis=0)
-# best_conversion_rate = np.max(weighted_mean_conversion_rates)
-# index_of_best_conversion_rate = np.argwhere(weighted_mean_conversion_rates == best_conversion_rate).flatten()
+# scores = np.zeros((3, n_arms_pricing))
+# for cls in range(0, 3):
+#     scores[cls] = environments_pricing[cls].probabilities
+# index_of_best_conversion_rate = np.argmax(np.sum(scores, axis=0))
+weighted_mean_conversion_rates = np.average(conversion_rates_np_array,
+                                            weights=user_classes_probabilities_vector,
+                                            axis=0)
+best_conversion_rate = np.max(weighted_mean_conversion_rates)
+index_of_best_conversion_rate = np.argwhere(weighted_mean_conversion_rates == best_conversion_rate).flatten()
 best_price = ts_learner_pricing.prices[index_of_best_conversion_rate].flatten()
 
 for s in subcampaigns:
@@ -139,24 +138,26 @@ for s in subcampaigns:
     opt_advertising += environments_advertising[s].means[optimal_reward[s]] \
                        * conversion_rate_list[s] * best_price
 
-np.set_printoptions(precision=3)
-print("Opt")
-print(opt_advertising)
-print("Rewards")
-print(gp_rewards_per_experiment_advertising)
-print("Regrets")
-regrets = np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising, axis=0)
-print(regrets)
-plt.figure()
-plt.ylabel("Regret")
-plt.xlabel("t")
-plt.plot(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising, axis=0)), 'g')
-plt.legend(["Cumulative Regret"])
-plt.show()
+for arm in range(n_arms_pricing):
+    np.set_printoptions(precision=3)
+    print("Opt")
+    print(opt_advertising)
+    print("Rewards")
+    print(np.mean(gp_rewards_per_experiment_advertising[:, arm, :], axis=0))
+    print("Regrets")
+    regrets = np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)
+    print(regrets)
+    plt.figure()
+    plt.ylabel("Regret")
+    plt.xlabel("t")
+    plt.plot(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)),
+             'g')
+    plt.legend(["Cumulative Regret"])
+    plt.show()
 
-plt.figure()
-plt.ylabel("Regret")
-plt.xlabel("t")
-plt.plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising, axis=0)), 'r')
-plt.legend(["Regret"])
-plt.show()
+    plt.figure()
+    plt.ylabel("Regret")
+    plt.xlabel("t")
+    plt.plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
+    plt.legend(["Regret"])
+    plt.show()

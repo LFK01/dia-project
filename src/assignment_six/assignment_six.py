@@ -10,9 +10,9 @@ from src.advertising.environment.click_budget import ClickBudget as AdvertisingE
 from src.pricing.greedy_learner import GreedyLearner
 from src.pricing.reward_function import rewards
 
-T = 100
+T = 50
 
-n_experiments = 20
+n_experiments = 1
 
 subcampaigns = [0, 1, 2]
 
@@ -71,6 +71,7 @@ for e in range(0, n_experiments):
         values_combination_of_each_subcampaign = []
         best_price_list = []
         conversion_rate_list = []
+        price_index_list = []
 
         # Thompson Sampling and GP-TS Learner
         for s in subcampaigns:
@@ -82,6 +83,7 @@ for e in range(0, n_experiments):
             # thompson sampling
             price_index, conversion_rate = advanced_ts_learners_pricing[s].pull_arm()
             proposed_price = advanced_ts_learners_pricing[s].get_price_from_index(idx=price_index)
+            price_index_list.append(price_index)
             conversion_rate_list.append(conversion_rate)
             best_price_list.append(proposed_price)
             reward_pricing = environments_pricing[s].round(price_index)
@@ -101,7 +103,7 @@ for e in range(0, n_experiments):
         total_revenue = 0
         for s in subcampaigns:
             reward_advertising = environments_advertising[s].round(superarm[s])
-            total_revenue += reward_advertising * best_price_list[s] * conversion_rate_list[s]
+            total_revenue += reward_advertising * best_price_list[s] * environments_pricing[s].probabilities[price_index_list[s]]
             gpts_learner_advertising[s].update(superarm[s], reward_advertising)
 
         total_revenue_per_t.append(total_revenue)

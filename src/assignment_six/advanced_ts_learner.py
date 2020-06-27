@@ -8,10 +8,8 @@ class AdvancedTSLearner(Learner):
         # initialize the parameters of the beta distribution
         # Example: [[[1. 1.],  ...  [1. 1.],  [1. 1.]]]
         self.beta_parameters = np.ones((n_arms, 2))
-        # store the matrix of prices for each environment
-        # Example: [array([0.        , 0.03448276, ... 0.96551724, 1.        ]),
-        #           array([0.        , 0.03448276, ... 0.96551724, 1.        ]),
-        #           array([0.        , 0.03448276, ... 0.96551724, 1.        ])]
+        # store the array of prices for each environment
+        # Example: [0.        , 0.03448276, ... 0.96551724, 1.        ]
         self.prices = prices
 
     def pull_arm(self):
