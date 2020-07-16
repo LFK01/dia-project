@@ -9,9 +9,9 @@ from src.advertising.environment.click_budget import ClickBudget as AdvertisingE
 from src.pricing.reward_function import rewards
 from src.pricing.ts_learner import TSLearner
 
-T = 80
+T = 100
 
-n_experiments = 5
+n_experiments = 10
 
 subcampaigns = [0, 1, 2]
 user_classes_probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
@@ -107,36 +107,30 @@ for e in range(0, n_experiments):
 
 # Find the optimal value executing the Knapsack optimization on the different environment
 gp_rewards_per_experiment_advertising = np.array(gp_rewards_per_experiment_advertising)
-total_optimal_combination = []
 
-conversion_rate_list = []
-best_price_list = []
+revenue_advertising_list = []
 
-conversion_rates_np_array = np.array([environment.probabilities for environment in environments_pricing])
-# scores = np.zeros((3, n_arms_pricing))
-# for cls in range(0, 3):
-#     scores[cls] = environments_pricing[cls].probabilities
-# index_of_best_conversion_rate = np.argmax(np.sum(scores, axis=0))
-weighted_mean_conversion_rates = np.average(conversion_rates_np_array,
-                                            weights=user_classes_probabilities_vector,
-                                            axis=0)
-best_conversion_rate = np.max(weighted_mean_conversion_rates)
-index_of_best_conversion_rate = np.argwhere(weighted_mean_conversion_rates == best_conversion_rate).flatten()
-best_price = ts_learner_pricing.prices[index_of_best_conversion_rate].flatten()
+for conversion_rate_index in range(n_arms_pricing):
+    price = ts_learner_pricing.prices[conversion_rate_index]
+    conversion_rate_list = []
+    total_optimal_combination = []
 
-for s in subcampaigns:
-    conversion_rate_list.append(environments_pricing[s].probabilities[index_of_best_conversion_rate])
-    click_numbers_vector = np.array(environments_advertising[s].means)
-    modified_rewards = click_numbers_vector * best_price * conversion_rate_list[s]
-    total_optimal_combination.append(modified_rewards.tolist())
+    for s in subcampaigns:
+        conversion_rate_list.append(environments_pricing[s].probabilities[conversion_rate_index])
+        click_numbers_vector = np.array(environments_advertising[s].means)
+        modified_rewards = click_numbers_vector * price * conversion_rate_list[s]
+        total_optimal_combination.append(modified_rewards.tolist())
 
-optimal_reward = Knapsack(total_optimal_combination, daily_budget).solve()
+    optimal_reward = Knapsack(total_optimal_combination, daily_budget).solve()
 
-opt_advertising = 0
+    revenue_advertising = 0
 
-for s in subcampaigns:
-    opt_advertising += environments_advertising[s].means[optimal_reward[s]] \
-                       * conversion_rate_list[s] * best_price
+    for s in subcampaigns:
+        revenue_advertising += environments_advertising[s].means[optimal_reward[s]] \
+                           * conversion_rate_list[s] * price
+    revenue_advertising_list.append(revenue_advertising)
+
+opt_advertising = max(revenue_advertising_list)
 
 for arm in range(n_arms_pricing):
     np.set_printoptions(precision=3)
@@ -153,11 +147,13 @@ for arm in range(n_arms_pricing):
     plt.plot(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)),
              'g')
     plt.legend(["Cumulative Regret"])
-    plt.show()
+    # plt.show()
+    plt.savefig('cum_regret_arm_' + str(arm) + '.png')
 
     plt.figure()
     plt.ylabel("Regret")
     plt.xlabel("t")
     plt.plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
     plt.legend(["Regret"])
-    plt.show()
+    # plt.show()
+    plt.savefig('regret_arm_' + str(arm) + '.png')
