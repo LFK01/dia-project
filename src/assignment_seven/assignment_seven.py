@@ -147,13 +147,13 @@ for arm in range(n_arms_pricing):
     plt.plot(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)),
              'g')
     plt.legend(["Cumulative Regret"])
-    # plt.show()
-    plt.savefig('cum_regret_arm_' + str(arm) + '.png')
+    plt.show()
+    # plt.savefig('cum_regret_arm_' + str(arm) + '.png')
 
     plt.figure()
     plt.ylabel("Regret")
     plt.xlabel("t")
     plt.plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
     plt.legend(["Regret"])
-    # plt.show()
-    plt.savefig('regret_arm_' + str(arm) + '.png')
+    plt.show()
+    # plt.savefig('regret_arm_' + str(arm) + '.png')

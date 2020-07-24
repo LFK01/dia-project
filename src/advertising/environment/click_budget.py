@@ -17,8 +17,8 @@ def clicks(budget, max_value, coefficient, function_type):
 
 # Generate a random sample based on the curve:
 # given a budget and a noise, returns number of clicks + random gaussian noise
-def generate_observation(budget, arm, max_value=100, coefficient=4, function_type=0, noise_std=10.0):
-    means = clicks(budget, arm, max_value, coefficient, function_type)
+def generate_observation(budget, max_value=100, coefficient=4, function_type=0, noise_std=10.0):
+    means = clicks(budget, max_value, coefficient, function_type)
     sigmas = np.ones(len(budget)) * noise_std
     return np.maximum(0, np.random.normal(means, sigmas))
 

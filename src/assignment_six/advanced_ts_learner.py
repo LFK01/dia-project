@@ -14,7 +14,8 @@ class AdvancedTSLearner(Learner):
 
     def pull_arm(self):
         conversion_rates = np.random.beta(self.beta_parameters[:, 0], self.beta_parameters[:, 1])
-        idx = np.argmax(conversion_rates)
+        weighting_factor = conversion_rates*self.prices
+        idx = np.argmax(weighting_factor)
         return idx, np.max(conversion_rates)
 
     def get_price_from_index(self, idx):
