@@ -1,5 +1,4 @@
 import time
-import matplotlib.pyplot as plt
 from src.advertising.learner.gpts_learner import *
 from src.advertising.solver.knapsack import *
 from src.advertising.environment.non_stat_click_budg import *
@@ -11,32 +10,44 @@ min_budget = 0.0
 max_budget = 1.0
 n_arms = 21
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
-sigma = 10
+sigma = 3
 
 # number of phases
 n_phases = 3
 # Time horizon multiple of the number of phases
-T = n_phases * 100
+T = n_phases * 150
 # Window size proportional to the square root of T and always integer
-window_size = int(np.sqrt(T) * 4.1)
+window_size = 85
 # Number of experiments
-n_experiments = 5
+n_experiments = 20
+# The number of the actual abrupt phase
+phase_number = 0
 
 # BUILD OF THE 3 ENVIRONMENTS. ONE FOR EACH SUBCAMPAIGN. The single environment is not stationary
 # define the values of the x
 x_values = [np.linspace(min_budget, max_budget, n_arms) for i in range(0, n_phases)]
 # The values of the y for each phase
-y_values = [[0, 3, 6, 15, 36, 87, 136, 183, 223, 258, 288, 313, 333, 348, 358, 364, 366, 367, 367, 367, 367],
-            [0, 3, 6, 15, 25, 35, 49, 70, 100, 145, 180, 225, 269, 299, 336, 376, 396, 410, 420, 430, 430],
-            [0, 3, 6, 15, 20, 27, 39, 48, 68, 92, 130, 178, 210, 245, 288, 320, 370, 410, 435, 455, 455]]
-# define the length of each phase. The first is T/3 -10, the second T/3 and so on
-phase_length = [T / 3 - 10, T / 3, T / 3 + 10]
+# subcampaign 1
+y1_values = [np.array([0, 3, 3, 6, 9, 15, 24, 39, 63, 102, 165, 228, 328, 368, 398, 418, 428, 432, 433, 433, 433]),
+             np.array([0, 5, 5, 10, 15, 25, 40, 65, 105, 170, 275, 320, 350, 365, 372, 374, 375, 375, 375, 375, 375]),
+             np.array([0, 4, 4, 8, 12, 20, 32, 52, 84, 136, 220, 310, 355, 377, 388, 393, 395, 396, 397, 397, 397])]
+# subcampaign 2
+y2_values = [np.array([0, 2, 2, 4, 6, 10, 16, 26, 42, 68, 110, 178, 288, 408, 493, 533, 545, 550, 552, 553, 553]),
+             np.array([0, 6, 6, 12, 18, 30, 48, 78, 126, 204, 304, 354, 379, 392, 398, 401, 403, 404, 404, 404, 404]),
+             np.array([0, 10, 10, 20, 30, 50, 80, 130, 210, 270, 300, 315, 322, 325, 327, 326, 326, 326, 326, 326, 326])]
+# subcampaign 3
+y3_values = [np.array([0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 527, 590, 605, 608, 609, 610]),
+             np.array([0, 8, 8, 16, 24, 42, 66, 108, 174, 282, 380, 420, 450, 465, 472, 475, 477, 478, 478, 478, 478]),
+             np.array([0, 9, 9, 18, 27, 45, 90, 135, 225, 310, 350, 370, 380, 385, 387, 388, 388, 388, 388, 388, 388])]
+
+# Length of the phases
+phase_length = [T / 3, T / 3, T / 3]
 # define the budgets
 budget_matrix = [daily_budget for i in range(0, n_phases)]
 # define 3 non stationary environment, one for each subcampaign
-environment_first_subcampaign = non_stat_click_env(phase_length, x_values, y_values, sigma, budget_matrix)
-environment_second_subcampaign = environment_first_subcampaign
-environment_third_subcampaign = environment_first_subcampaign
+environment_first_subcampaign = non_stat_click_env(phase_length, x_values, y1_values, sigma, budget_matrix, 1, 'r')
+environment_second_subcampaign = non_stat_click_env(phase_length, x_values, y2_values, sigma, budget_matrix, 2, 'b')
+environment_third_subcampaign = non_stat_click_env(phase_length, x_values, y3_values, sigma, budget_matrix, 3, 'g')
 env = [environment_first_subcampaign, environment_second_subcampaign, environment_third_subcampaign]
 # END
 
@@ -51,6 +62,7 @@ sw_total_clicks_per_t = []
 
 # start of the experiments
 for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
+    phase_number = 0
     # Initialize the environment, learner and click for each experiment
     gpts_learner = []
     sw_gpts_learner = []
@@ -64,16 +76,20 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
     # For each t in the time horizon, run the GP_TS algorithm
     for t in range(0, T):
         if t % (T / n_phases) == 0:
+            phase_number += 1
             for s in subcampaign:
                 # Learning of hyperparameters before starting the algorithm
                 new_x = []
                 new_y = []
-                for i in range(0, 100):
-                    new_x.append(np.random.choice(daily_budget, 1))
-                    new_y.append(env[s].round(np.where(daily_budget == new_x[i]), t))
+                for i in range(0, 20):
+                    index = 0
+                    for arm in daily_budget:
+                        new_x.append(arm)
+                        new_y.append(env[s].round_phase(index, phase_number=phase_number))
+                        index += 1
                 gpts_learner[s].generate_gaussian_process(new_x, new_y, sw=True)
                 sw_gpts_learner[s].generate_gaussian_process(new_x, new_y, sw=True)
-
+                print("\nend training hyperparameters\n")
         total_subcampaign_combination = []
         sw_total_subcampaign_combination = []
         for s in subcampaign:

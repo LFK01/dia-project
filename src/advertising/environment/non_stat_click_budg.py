@@ -10,7 +10,7 @@ class non_stat_click_env:
     # length of the i+1 th phase. x_values is an matrix and y_values is also a matrix and they are used to compute
     # the functions for each phase interpolating the points. The interpolation is done interpolating the corresponding
     # x_values and y_values row
-    def __init__(self, phases_length, x_values, y_values, sigma, budgets_matrix):
+    def __init__(self, phases_length, x_values, y_values, sigma, budgets_matrix, subcampaign_number, color):
         # number of phases
         self.n_phases = len(phases_length)
         # Functions of each abrupt phases obtained through interpolation
@@ -20,8 +20,8 @@ class non_stat_click_env:
             plt.figure(phases_index)
             plt.ylabel("Rewards")
             plt.xlabel("arms")
-            plt.plot(x_values[phases_index], y_values[phases_index], 'r')
-            plt.legend(["Environment function of the abrupt phase" + str(phases_index + 1)])
+            plt.plot(x_values[phases_index], y_values[phases_index], color)
+            plt.legend(["Environment function of the subcampaign" + str(subcampaign_number) + ", abrupt phase: " + str(phases_index + 1)])
             plt.show()
 
         # An array containing the times in which each phase will change
@@ -29,7 +29,7 @@ class non_stat_click_env:
         # the vector), the second from 3  (second position of the array) the third from 6 (the third position) and so on
         self.change_phases_time = np.zeros(self.n_phases)
 
-        # compute the array of time instants in which a phase change
+        # compute the array of time instants in which a phase changes
         for phase_length_index in reversed(range(0, self.n_phases)):
             for index in reversed(range(0, phase_length_index)):
                 self.change_phases_time[phase_length_index] = self.change_phases_time[phase_length_index] + \
@@ -52,6 +52,9 @@ class non_stat_click_env:
                 environmentIndex += 1
         # return the round
         return np.maximum(0, np.random.normal(self.means[environmentIndex][pulled_arm], self.sigmas[pulled_arm]))
+
+    def round_phase(self, pulled_arm, phase_number):
+        return np.maximum(0, np.random.normal(self.means[phase_number-1][pulled_arm], self.sigmas[pulled_arm]))
 
 
 # main used just for testing just to see if it works. Just 4 phases with different lengths and every function is
