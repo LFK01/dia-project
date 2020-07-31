@@ -8,10 +8,11 @@ from sklearn import preprocessing
 class GPTSLearner(Learner):
     def __init__(self, n_arms, arms):
         super(GPTSLearner, self).__init__(n_arms)
+        self.time = 0
         self.arms = arms
         self.predicted_arms = np.zeros(self.n_arms)
         self.means = np.zeros(self.n_arms)
-        self.sigmas = np.ones(self.n_arms) * 3
+        self.sigmas = np.ones(self.n_arms) * 10
         self.pulled_arms = []
         self.alpha = 3
         kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-3, 1e3))
@@ -33,7 +34,7 @@ class GPTSLearner(Learner):
         y = self.collected_rewards
 
         # Normalization of X
-        # x = preprocessing.scale(x) 
+        # x = preprocessing.scale(x)
 
         # Fit the model
         self.update_prediction(x, y)
@@ -74,7 +75,8 @@ class GPTSLearner(Learner):
     def update_prediction(self, x, y):
         self.gp.fit(x, y)
         self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
-        self.sigmas = np.maximum(self.sigmas, 1e-2)
+        # self.sigmas = np.maximum(self.sigmas, 1e-2)
+        self.sigmas = np.maximum(self.sigmas, 1)
 
         # Save the predicted value for each arms, avoiding negative value
         self.predicted_arms = np.random.normal(self.means, self.sigmas)
