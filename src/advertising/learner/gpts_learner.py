@@ -33,7 +33,7 @@ class GPTSLearner(Learner):
         y = self.collected_rewards
 
         # Normalization of X
-        # x = preprocessing.scale(x)
+        # x = preprocessing.scale(x) 
 
         # Fit the model
         self.update_prediction(x, y)
