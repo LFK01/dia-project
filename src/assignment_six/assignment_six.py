@@ -193,7 +193,7 @@ for s in subcampaigns:
     # build the combination vector corresponding of the collection of modified rewards for each subcampaign
     total_optimal_combination.append(modified_rewards)
 
-# solve the Knapsaack problem
+# solve the Knapsack problem
 optimal_reward = Knapsack(total_optimal_combination, daily_budget).solve()
 
 # initialize the optimal advertising variable
