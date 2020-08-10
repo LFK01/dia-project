@@ -8,10 +8,10 @@ class Non_Stationary_Environment(Environment):
         self.horizon = horizon
 
     def round(self, pulled_arms):
-        n_phases = len(self.probabilities)
+        n_phases = len(self.conversion_rates)
         phase_size = self.horizon / n_phases
         current_phase = int(self.t / phase_size)
 
-        p = self.probabilities[current_phase][pulled_arms]
+        p = self.conversion_rates[current_phase][pulled_arms]
         self.t += 1
         return np.random.binomial(1, p)

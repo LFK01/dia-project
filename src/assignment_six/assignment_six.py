@@ -138,7 +138,7 @@ for e in range(0, n_experiments):
             # retrieve the reward in number of click collected from each subcampaign
             reward_advertising = environments_advertising[s].round(superarm[s])
             # retrieve the conversion rate for that specific
-            conversion = environments_pricing[s].probabilities[price_index_list[s]]
+            conversion = environments_pricing[s].conversion_rates[price_index_list[s]]
             # compute the total outcome collected from the procedure
             total_revenue += reward_advertising * best_price_list[s] * conversion
             # update the learner
@@ -167,7 +167,7 @@ for s in subcampaigns:
         # retrieve the actual price
         price = advanced_ts_learners_pricing[s].prices[conversion_rate_index]
         # retrieve the actual conversion rate
-        conversion_rate = environments_pricing[s].probabilities[conversion_rate_index]
+        conversion_rate = environments_pricing[s].conversion_rates[conversion_rate_index]
         # compute the weighting factor
         weighting_factor_of_subcampaign_list.append(price * conversion_rate)
 
@@ -176,7 +176,7 @@ for s in subcampaigns:
     # retrieve the index of the weighting factor
     best_weighting_factor_index = weighting_factor_of_subcampaign_list.index(best_weighting_factor)
     # retrieve best conversion rate
-    best_conversion_rate = environments_pricing[s].probabilities[best_weighting_factor_index]
+    best_conversion_rate = environments_pricing[s].conversion_rates[best_weighting_factor_index]
 
     # store all the conversion rate for each subcampaign
     conversion_rate_list.append(best_conversion_rate)

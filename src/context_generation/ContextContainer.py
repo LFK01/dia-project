@@ -99,7 +99,7 @@ class ContextContainer:
         opt_per_arm = np.zeros(self.__n_arms)
         for c in range(0, len(self.__context)):
             for arm in range(0, self.__n_arms):
-                opt_per_arm[arm] += self.__environment[c].probabilities[arm] * self.__probabilities[c]
+                opt_per_arm[arm] += self.__environment[c].conversion_rates[arm] * self.__probabilities[c]
         return np.max(opt_per_arm)
 
     def print_context(self, id):
