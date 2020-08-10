@@ -114,7 +114,7 @@ if __name__ == "__main__":
     max_price = 1.0
     prices = np.linspace(min_price, max_price, arm)
     rewards = [rewards(prices, max_price) for i in range(0, 3)]
-    environments = [Environment(n_arms=arm, probabilities=rewards[cls]) for cls in range(0, 3)]
+    environments = [Environment(n_arms=arm, conversion_rates=rewards[cls]) for cls in range(0, 3)]
     obj = ContextContainer(classes, prob, environments, arm)
     for i in range(0, 200):
         obj.run_TS()

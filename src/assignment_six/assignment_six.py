@@ -28,7 +28,7 @@ sigma_advertising = 1
 n_arms_advertising = 21
 
 # array of budgets spacing from min_value_advertising to max_value_advertising
-daily_budget = np.linspace(min_value_advertising, max_value_advertising, n_arms_advertising)
+daily_budgets = np.linspace(min_value_advertising, max_value_advertising, n_arms_advertising)
 
 # minimum and maximum value for the pricing
 min_value_pricing = 0.0
@@ -63,8 +63,8 @@ gpts_learner_advertising = []
 # initialization of the arrays of the rewards and of the environments
 for s in subcampaigns:
     ts_rewards_per_experiment_pricing.append([])
-    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, probabilities=rewards_normalized))
-    environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budget, sigma=sigma_advertising))
+    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized))
+    environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budgets, sigma=sigma_advertising))
 
 for e in range(0, n_experiments):
 
@@ -78,14 +78,14 @@ for e in range(0, n_experiments):
     # initialization of learners and tuning of gaussian process hyperparameters
     for s in subcampaigns:
         advanced_ts_learners_pricing.append(AdvancedTSLearner(n_arms=n_arms_pricing, prices=conversion_prices))
-        gpts_learner_advertising.append(GPTSLearner(n_arms=n_arms_advertising, arms=daily_budget))
+        gpts_learner_advertising.append(GPTSLearner(n_arms=n_arms_advertising, arms=daily_budgets))
 
         # Learning of hyper parameters before starting the algorithm
         new_x = []
         new_y = []
         for i in range(0, 100):
-            new_x.append(np.random.choice(daily_budget, 1))
-            new_y.append(environments_advertising[s].round(np.where(daily_budget == new_x[i])))
+            new_x.append(np.random.choice(daily_budgets, 1))
+            new_y.append(environments_advertising[s].round(np.where(daily_budgets == new_x[i])))
         gpts_learner_advertising[s].generate_gaussian_process(new_x, new_y)
 
     # experiment start
@@ -130,7 +130,7 @@ for e in range(0, n_experiments):
         # At the and of the GP_TS algorithm of all the sub campaign, run the Knapsack optimization
         # and save the chosen arm of each sub campaign
 
-        superarm = Knapsack(values_combination_of_each_subcampaign, daily_budget).solve()
+        superarm = Knapsack(values_combination_of_each_subcampaign, daily_budgets).solve()
 
         # At the end of each t, save the total click of the arms extracted by the Knapsack optimization
         total_revenue = 0
@@ -138,7 +138,6 @@ for e in range(0, n_experiments):
             # retrieve the reward in number of click collected from each subcampaign
             reward_advertising = environments_advertising[s].round(superarm[s])
             # retrieve the conversion rate for that specific
-            # SHOULD WE ADD HERE SOME GAUSSIAN NOISE?
             conversion = environments_pricing[s].probabilities[price_index_list[s]]
             # compute the total outcome collected from the procedure
             total_revenue += reward_advertising * best_price_list[s] * conversion
@@ -194,7 +193,7 @@ for s in subcampaigns:
     total_optimal_combination.append(modified_rewards)
 
 # solve the Knapsack problem
-optimal_reward = Knapsack(total_optimal_combination, daily_budget).solve()
+optimal_reward = Knapsack(total_optimal_combination, daily_budgets).solve()
 
 # initialize the optimal advertising variable
 opt_advertising = 0
@@ -204,6 +203,7 @@ for s in subcampaigns:
     opt_advertising += environments_advertising[s].means[optimal_reward[s]] \
                        * conversion_rate_list[s] * best_price_list[s]
 
+# plot the graphs
 np.set_printoptions(precision=3)
 print("Opt")
 print(opt_advertising)

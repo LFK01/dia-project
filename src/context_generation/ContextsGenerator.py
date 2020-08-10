@@ -75,7 +75,7 @@ if __name__ == '__main__':
     # Create a reward curve for each class
     rewards = [rewards(prices, max_price) for i in range(0, 3)]
     # Create an environment for each class
-    environment = [Environment(n_arms=n_arms, probabilities=rewards[cls]) for cls in range(0, 3)]
+    environment = [Environment(n_arms=n_arms, conversion_rates=rewards[cls]) for cls in range(0, 3)]
 
     ts_rewards_per_experiment = []
     opt_per_experiment = []

@@ -2,8 +2,8 @@ from src.pricing.environment import *
 
 
 class Non_Stationary_Environment(Environment):
-    def __init__(self, n_arms, probabilities, horizon):
-        super().__init__(n_arms, probabilities)
+    def __init__(self, n_arms, conversion_rates, horizon):
+        super().__init__(n_arms, conversion_rates)
         self.t = 0
         self.horizon = horizon
 
