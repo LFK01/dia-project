@@ -1,10 +1,11 @@
-from src.advertising.learner.learner import *
+import numpy as np
+from src.utils.learner import Learner
 
 
 # This class allows to do the usual things of a thompson sampling but in the case in which there is a context
 # composed of different classes each one with a certain probability. The class allow the user of split the learner in 2
 # learners when it is needed to split the context.
-class Ts_learner_context(Learner):
+class TSLearnerContext(Learner):
 
     # n_arms is the number of arms, probabilities is an array of probabilities related to the probability of each single
     # class. User class is an array of indexes each one for each class
@@ -14,7 +15,7 @@ class Ts_learner_context(Learner):
         self.__probabilities = probabilities
         self.__n_arms = n_arms
         self.__n_classes = len(user_class)
-        if rewards_per_arm is None and collected_rewards is None and beta_parameters is None and collected_rewards is None:
+        if all(x is None for x in (rewards_per_arm, collected_rewards, beta_parameters, collected_rewards)):
             self.__rewards_per_arm = [[[] for arm in range(0, n_arms)] for cls in range(0, self.__n_classes)]
             self.__collected_rewards = [[] for cls in range(0, self.__n_classes)]
             self.__beta_parameters = [np.ones((n_arms, 2)) for cls in range(0, len(user_class))]
@@ -34,10 +35,12 @@ class Ts_learner_context(Learner):
                            self.__probabilities[cls])
         return np.argmax(scores.sum(axis=0))
 
-    # This finds the optimal arm in the case in which we are not considering not all the class as part of a context but
-    # only the ones given as input to this method (classes). It finds the best arm considering only "classes" as classes.
-    # Classes is an array of indexes. Each index represents a class. Example: classes = [1,3,4] means that in this case
-    # we are considering only the classes with those indexes instead of consider all the class which are part of the context
+    # This finds the optimal arm in the case in which we are not considering not all the class as part of a context
+    # but only the ones given as input to this method (classes). It finds the best arm considering only "classes"
+    # as classes.
+    # Classes is an array of indexes. Each index represents a class. Example: classes = [1,3,4] means that in this
+    # case we are considering only the classes with those indexes instead of consider all the class which are part
+    # of the context
     def get_best_arm_sub_context(self, classes):
         scores = np.zeros((len(classes), self.__n_arms))
         for cls in range(0, len(classes)):
@@ -47,7 +50,8 @@ class Ts_learner_context(Learner):
         index = np.argmax(scores.sum(axis=0))
         return index
 
-    # This method updates the distributions. It updates the beta parameter of the optimal arm for each beta of each class
+    # This method updates the distributions. It updates the beta parameter of the optimal arm for each beta
+    # of each class
     def update(self, pulled_arm, reward):
         self.t += 1
         self.__update_observations(pulled_arm, reward)
@@ -56,8 +60,8 @@ class Ts_learner_context(Learner):
             self.__beta_parameters[cls][pulled_arm, 1] = self.__beta_parameters[cls][pulled_arm, 1] + 1.0 - reward[cls]
 
     # This method allow to split the learner in two different learners each one for a different context. The learners
-    # are given in array form. First classes is an array of classes which compose the first new context and second_classes
-    # is an array of classes which compose the second new context.
+    # are given in array form. First classes is an array of classes which compose the first new context and
+    # second_classes is an array of classes which compose the second new context.
     def split_in_2(self, first_classes, second_classes):
         probabilities1 = [self.__probabilities[i] for i in first_classes]
         probabilities2 = [self.__probabilities[i] for i in second_classes]

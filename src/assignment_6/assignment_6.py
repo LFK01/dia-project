@@ -2,18 +2,18 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 
-from src.advertising.learner.gpts_learner import GPTSLearner
-from src.advertising.solver.knapsack import Knapsack
-from src.assignment_six.advanced_ts_learner import AdvancedTSLearner
-from src.pricing.environment import Environment as PricingEnvironment
-from src.advertising.environment.click_budget import ClickBudget as AdvertisingEnvironment
-from src.pricing.reward_function import rewards
+from src.assignment_2.gpts_learner import GPTSLearner
+from src.utils.knapsack import Knapsack
+from src.assignment_6.weighted_ts_learner import WeightedTSLearner
+from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
+from src.utils.click_budget import ClickBudget as AdvertisingEnvironment
+from src.assignment_4.reward_function import rewards
 
 # number of timesteps
 T = 250
 
 # number of experiments
-n_experiments = 1
+n_experiments = 10
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -77,7 +77,7 @@ for e in range(0, n_experiments):
 
     # initialization of learners and tuning of gaussian process hyperparameters
     for s in subcampaigns:
-        advanced_ts_learners_pricing.append(AdvancedTSLearner(n_arms=n_arms_pricing, prices=conversion_prices))
+        advanced_ts_learners_pricing.append(WeightedTSLearner(n_arms=n_arms_pricing, prices=conversion_prices))
         gpts_learner_advertising.append(GPTSLearner(n_arms=n_arms_advertising, arms=daily_budgets))
 
         # Learning of hyper parameters before starting the algorithm
@@ -106,7 +106,7 @@ for e in range(0, n_experiments):
             # according chosen price and the estimated conversion rate of the arm
             price_index, conversion_rate = advanced_ts_learners_pricing[s].pull_arm()
             # this function retrieves the price corresponding to the pulled index
-            proposed_price = advanced_ts_learners_pricing[s].get_price_from_index(price_index)
+            proposed_price = advanced_ts_learners_pricing[s].prices[price_index]
             # saving of the price indexes
             price_index_list.append(price_index)
             # saving of the conversion rates

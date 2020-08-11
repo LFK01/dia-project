@@ -1,28 +1,22 @@
 import numpy as np
-from src.advertising.learner.learner import Learner
+from src.utils.learner import Learner
 
 
 class TSLearner(Learner):
     def __init__(self, n_arms, probabilities, number_of_classes):
         super().__init__(n_arms)
         # initialize the parameters of the beta distribution
-        # Example: [[[1. 1.],  ...  [1. 1.],  [1. 1.]]]
+        # Example: [[[1. 1.], ... [1. 1.], [1. 1.]]]
         self.beta_parameters = np.ones((number_of_classes, n_arms, 2))
         # store the matrix of prices for each environment
-        # Example: [array([0.        , 0.03448276, ... 0.96551724, 1.        ]),
-        #           array([0.        , 0.03448276, ... 0.96551724, 1.        ]),
-        #           array([0.        , 0.03448276, ... 0.96551724, 1.        ])]
+        # Example: [array([0. , 0.03448276, ... 0.96551724, 1.]),
+        #           array([0. , 0.03448276, ... 0.96551724, 1.]),
+        #           array([0. , 0.03448276, ... 0.96551724, 1.])]
         self.rewards_per_arm = [[[] for i in range(n_arms)] for j in range(number_of_classes)]
         self.collected_rewards = [[] for i in range(number_of_classes)]
         self.prices = None
         self.probabilities = probabilities
         self.number_of_classes = number_of_classes
-
-    def get_price_from_index(self, idx):
-        return self.prices[idx]
-
-    def set_prices(self, prices):
-        self.prices = prices
 
     def pull_arm(self):
         scores = np.zeros((self.number_of_classes, self.n_arms))

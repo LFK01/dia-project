@@ -1,8 +1,12 @@
 import time
-from src.advertising.learner.gpts_learner import *
-from src.advertising.solver.knapsack import *
-from src.advertising.environment.non_stat_click_budg import *
+import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
+from src.assignment_3.non_stat_click_env import NonStatClickEnv
+from src.assignment_2.gpts_learner import GPTSLearner
+from src.assignment_3.gpts_learner_sw import GPTSLearnerSW
+from src.utils.knapsack import Knapsack
+
 
 # Parameters initialization
 subcampaign = [0, 1, 2]
@@ -43,11 +47,11 @@ y3_values = [np.array([0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 5
 # Length of the phases
 phase_length = [T / 3, T / 3, T / 3]
 # define the budgets
-budget_matrix = [daily_budget for i in range(0, n_phases)]
+budget_matrix = [daily_budget for _ in range(0, n_phases)]
 # define 3 non stationary environment, one for each subcampaign
-environment_first_subcampaign = non_stat_click_env(phase_length, x_values, y1_values, sigma, budget_matrix, 1, 'r')
-environment_second_subcampaign = non_stat_click_env(phase_length, x_values, y2_values, sigma, budget_matrix, 2, 'b')
-environment_third_subcampaign = non_stat_click_env(phase_length, x_values, y3_values, sigma, budget_matrix, 3, 'g')
+environment_first_subcampaign = NonStatClickEnv(phase_length, x_values, y1_values, sigma, budget_matrix, 1, 'r')
+environment_second_subcampaign = NonStatClickEnv(phase_length, x_values, y2_values, sigma, budget_matrix, 2, 'b')
+environment_third_subcampaign = NonStatClickEnv(phase_length, x_values, y3_values, sigma, budget_matrix, 3, 'g')
 env = [environment_first_subcampaign, environment_second_subcampaign, environment_third_subcampaign]
 # END
 
@@ -71,7 +75,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 
     for s in subcampaign:
         gpts_learner.append(GPTSLearner(n_arms=n_arms, arms=daily_budget))
-        sw_gpts_learner.append(GPTSLearner(n_arms=n_arms, arms=daily_budget))
+        sw_gpts_learner.append(GPTSLearnerSW(n_arms=n_arms, arms=daily_budget, window_size=window_size))
 
     # For each t in the time horizon, run the GP_TS algorithm
     for t in range(0, T):
@@ -87,8 +91,8 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
                         new_x.append(arm)
                         new_y.append(env[s].round_phase(index, phase_number=phase_number))
                         index += 1
-                gpts_learner[s].generate_gaussian_process(new_x, new_y, sw=True)
-                sw_gpts_learner[s].generate_gaussian_process(new_x, new_y, sw=True)
+                gpts_learner[s].generate_gaussian_process(new_x, new_y, True)
+                sw_gpts_learner[s].generate_gaussian_process(new_x, new_y, True)
                 print("\nend training hyperparameters\n")
         total_subcampaign_combination = []
         sw_total_subcampaign_combination = []
@@ -113,7 +117,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
             # SWTS
             sw_reward = env[s].round(sw_superarm[s], t)
             sw_total_clicks += sw_reward
-            sw_gpts_learner[s].update(sw_superarm[s], sw_reward, window_size, True)
+            sw_gpts_learner[s].update(sw_superarm[s], sw_reward)
 
         total_clicks_per_t.append(total_clicks)
         sw_total_clicks_per_t.append(sw_total_clicks)

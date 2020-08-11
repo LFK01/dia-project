@@ -1,49 +1,24 @@
-from src.advertising.learner.learner import *
+import numpy as np
+from src.assignment_2.gpts_learner import GPTSLearner
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF, ConstantKernel
-from sklearn import preprocessing
 
 
 # GP-TS Learner, subclass of Learner
-class GPTSLearner(Learner):
-    def __init__(self, n_arms, arms):
-        super(GPTSLearner, self).__init__(n_arms)
-        self.time = 0
-        self.arms = arms
-        self.predicted_arms = np.zeros(self.n_arms)
-        self.means = np.zeros(self.n_arms)
-        self.sigmas = np.ones(self.n_arms) * 10
-        self.pulled_arms = []
-        self.alpha = 3
-        kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-3, 1e3))
-        self.gp = GaussianProcessRegressor(kernel=kernel,
-                                           alpha=self.alpha ** 2,
-                                           normalize_y=True,
-                                           n_restarts_optimizer=9)
-        self.x_obs = np.array([])
-        self.y_obs = np.array([])
+class GPTSLearnerSW(GPTSLearner):
+    def __init__(self, n_arms, arms, window_size):
+        super(GPTSLearnerSW, self).__init__(n_arms, arms)
+        self.window_size = window_size
 
     # Update the learner observation with the last arm and reward chosen
     def update_observations(self, arm_idx, reward):
-        super(GPTSLearner, self).update_observations(arm_idx, reward)
-        self.pulled_arms.append(self.arms[arm_idx])
-
-    # Update the Gaussian Process model with the last observed arm and reward
-    def update_model(self):
-        x = np.atleast_2d(self.pulled_arms).T
-        y = self.collected_rewards
-
-        # Normalization of X
-        # x = preprocessing.scale(x)
-
-        # Fit the model
-        self.update_prediction(x, y)
+        super(GPTSLearnerSW, self).update_observations(arm_idx, reward)
 
     # Update model in sliding windows mode
-    def update_model_sw(self, window_size):
+    def update_model(self):
         # Get only the pulled_arms and collected rewards inside the sliding window
-        pulled_arms_in_window = self.pulled_arms[-window_size:]
-        collected_reward_in_window = self.collected_rewards[-window_size:]
+        pulled_arms_in_window = self.pulled_arms[-self.window_size:]
+        collected_reward_in_window = self.collected_rewards[-self.window_size:]
 
         # Create variable x and y accordingly to what is needed to gp.fit()
         x = np.atleast_2d(pulled_arms_in_window).T
@@ -53,13 +28,10 @@ class GPTSLearner(Learner):
         self.update_prediction(x, y)
 
     # Run both the update function, increasing the round
-    def update(self, pulled_arm, reward, window_size=0, sw=False):
+    def update(self, pulled_arm, reward):
         self.t += 1
         self.update_observations(pulled_arm, reward)
-        if sw:
-            self.update_model_sw(window_size)
-        else:
-            self.update_model()
+        self.update_model()
 
     # Pull all the sample from the learner
     def pull_arm(self):
@@ -83,7 +55,7 @@ class GPTSLearner(Learner):
         self.predicted_arms = np.maximum(0, self.predicted_arms)
 
     # Generate a Gaussian Process with the observed value (not used but will be useful in future)
-    def generate_gaussian_process(self, new_x_obs, new_y_obs, sw=False):
+    def generate_gaussian_process(self, new_x_obs, new_y_obs, reset_gp=False):
         self.x_obs = np.array([])
         self.y_obs = np.array([])
         self.x_obs = np.append(self.x_obs, new_x_obs)
@@ -92,7 +64,7 @@ class GPTSLearner(Learner):
         x = np.atleast_2d(self.x_obs).T
         y = self.y_obs
 
-        if sw:
+        if reset_gp:
             kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-3, 1e3))
             self.gp = GaussianProcessRegressor(kernel=kernel,
                                                alpha=self.alpha ** 2,

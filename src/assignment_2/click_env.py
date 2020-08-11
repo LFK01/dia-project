@@ -18,8 +18,8 @@ def generate_observation(budget, function, noise_std=10.0):
     return np.maximum(0, np.random.normal(means, sigmas))
 
 
-# ClickBudget class
-class click_2:
+# ClickEnv class
+class ClickEnv:
     def __init__(self, budgets, sigma, x_values, y_values, subcampaign_number, color='g'):
         self.budgets = budgets
         self.function = interpolate.interp1d(x_values, y_values)

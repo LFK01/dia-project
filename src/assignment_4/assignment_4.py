@@ -1,8 +1,10 @@
+import numpy as np
 import matplotlib.pyplot as plt
-from src.pricing.environment import *
-from src.pricing.greedy_learner import *
-from src.pricing.ts_learner import *
-from src.pricing.reward_function import rewards
+
+from src.assignment_4.greedy_learner import GreedyLearner
+from src.assignment_4.reward_function import rewards
+from src.assignment_4.ts_learner import TSLearner
+from src.assignment_4.pricing_env import PricingEnv
 
 T = 100
 
@@ -44,7 +46,7 @@ for e in range(0, n_experiments):
                                number_of_classes=len(probabilities_vector))
 
     for subcampaign in range(len(subcampaigns)):
-        environments.append(Environment(n_arms, rewards_normalized))
+        environments.append(PricingEnv(n_arms, rewards_normalized))
 
     for t in range(0, T):
         # Thompson Sampling Learner

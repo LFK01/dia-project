@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from scipy import interpolate
 
 
-class non_stat_click_env:
+class NonStatClickEnv:
 
     # CONSTRUCTOR OF THE CLASS
     # budgets is a matrix (number of phases x number of arms), phases length is an array in which the i-th number is the
@@ -21,7 +21,8 @@ class non_stat_click_env:
             plt.ylabel("Rewards")
             plt.xlabel("arms")
             plt.plot(x_values[phases_index], y_values[phases_index], color)
-            plt.legend(["Environment function of the subcampaign" + str(subcampaign_number) + ", abrupt phase: " + str(phases_index + 1)])
+            plt.legend(["Environment function of the subcampaign " + str(subcampaign_number) + ", abrupt phase: "
+                        + str(phases_index + 1)])
             plt.show()
 
         # An array containing the times in which each phase will change
@@ -42,16 +43,16 @@ class non_stat_click_env:
     # FUNCTION: ROUND
     # Given the current time it selects the right environment and it returns the right value
     def round(self, pulled_arm, current_t):
-        environmentIndex = 0
+        environment_index = 0
         # find the right environment index
         if current_t >= self.change_phases_time[self.n_phases - 1]:
-            environmentIndex = self.n_phases - 1
+            environment_index = self.n_phases - 1
         else:
-            while current_t < self.change_phases_time[environmentIndex] or \
-                    current_t >= self.change_phases_time[environmentIndex + 1]:
-                environmentIndex += 1
+            while current_t < self.change_phases_time[environment_index] or \
+                    current_t >= self.change_phases_time[environment_index + 1]:
+                environment_index += 1
         # return the round
-        return np.maximum(0, np.random.normal(self.means[environmentIndex][pulled_arm], self.sigmas[pulled_arm]))
+        return np.maximum(0, np.random.normal(self.means[environment_index][pulled_arm], self.sigmas[pulled_arm]))
 
     def round_phase(self, pulled_arm, phase_number):
         return np.maximum(0, np.random.normal(self.means[phase_number-1][pulled_arm], self.sigmas[pulled_arm]))
@@ -64,5 +65,5 @@ if __name__ == "__main__":
     x_val = [np.linspace(0, 4, 10) for i in range(0, 4)]
     y_val = [[1, 1.3, 1.7, 2, 2.5, 3.2, 3.9, 4.8, 4.9, 5.2] for i in range(0, 4)]
     budgets = [np.array([1, 2, 3, 4]) for i in range(0, 4)]
-    obj = non_stat_click_env(phases_l, x_val, y_val, 1, budgets)
+    obj = NonStatClickEnv(phases_l, x_val, y_val, 1, budgets, 1, 'r')
     print(obj.round(2, 2))

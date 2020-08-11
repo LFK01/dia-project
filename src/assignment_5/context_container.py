@@ -1,7 +1,8 @@
-from src.context_generation.ts_learner_contexts import *
 import math as m
-from src.pricing.reward_function import rewards
-from src.pricing.environment import *
+import numpy as np
+from src.assignment_4.reward_function import rewards
+from src.assignment_5.ts_learner_contexts import TSLearnerContext
+from src.assignment_4.pricing_env import PricingEnv
 
 # it is the level of confidence
 confidence = 0.95
@@ -18,7 +19,7 @@ class ContextContainer:
         self.__context = user_class
         self.__probabilities = context_probabilities
         if ts_learner is None:
-            self.__ts_learner_context = Ts_learner_context(n_arms, self.__probabilities, self.__context)
+            self.__ts_learner_context = TSLearnerContext(n_arms, self.__probabilities, self.__context)
         else:
             self.__ts_learner_context = ts_learner
         self.__environment = environment
@@ -29,7 +30,7 @@ class ContextContainer:
 
     # This method is used for do a single iteration of the thompson sampling algorithm. It does: pull round and update
     # and in the meantime it updates some class parameters used for the computation of the hoeffding bound
-    def run_TS(self):
+    def run_ts(self):
         self.__context_optimal_arm = self.__ts_learner_context.pull_arm()
         total_reward = 0
         rewards_this_round = []
@@ -98,12 +99,12 @@ class ContextContainer:
     def get_opt(self):
         opt_per_arm = np.zeros(self.__n_arms)
         for c in range(0, len(self.__context)):
-            for arm in range(0, self.__n_arms):
-                opt_per_arm[arm] += self.__environment[c].conversion_rates[arm] * self.__probabilities[c]
+            for arm_index in range(0, self.__n_arms):
+                opt_per_arm[arm_index] += self.__environment[c].conversion_rates[arm_index] * self.__probabilities[c]
         return np.max(opt_per_arm)
 
-    def print_context(self, id):
-        print("Context ", id, ": ", self.__context)
+    def print_context(self, context_id):
+        print("Context ", context_id, ": ", self.__context)
 
 
 if __name__ == "__main__":
@@ -114,13 +115,13 @@ if __name__ == "__main__":
     max_price = 1.0
     prices = np.linspace(min_price, max_price, arm)
     rewards = [rewards(prices, max_price) for i in range(0, 3)]
-    environments = [Environment(n_arms=arm, conversion_rates=rewards[cls]) for cls in range(0, 3)]
+    environments = [PricingEnv(n_arms=arm, conversion_rates=rewards[cls]) for cls in range(0, 3)]
     obj = ContextContainer(classes, prob, environments, arm)
     for i in range(0, 200):
-        obj.run_TS()
+        obj.run_ts()
     containers = obj.split_context()
     for i in range(0, 100):
         if containers is not None and len(containers) == 2:
-            containers[0].run_TS()
-            containers[1].run_TS()
+            containers[0].run_ts()
+            containers[1].run_ts()
     print("done")

@@ -1,15 +1,15 @@
-from src.advertising.learner.learner import Learner
 import numpy as np
+from src.utils.learner import Learner
 
 
-class AdvancedTSLearner(Learner):
+class WeightedTSLearner(Learner):
     def __init__(self, n_arms, prices):
         super().__init__(n_arms)
         # initialize the parameters of the beta distribution
-        # Example: [[[1. 1.],  ...  [1. 1.],  [1. 1.]]]
+        # Example: [[[1. 1.], ... [1. 1.], [1. 1.]]]
         self.beta_parameters = np.ones((n_arms, 2))
         # store the array of prices for each environment
-        # Example: [0.        , 0.03448276, ... 0.96551724, 1.        ]
+        # Example: [0., 0.03448276, ... 0.96551724, 1.]
         self.prices = prices
 
     def pull_arm(self):
@@ -17,9 +17,6 @@ class AdvancedTSLearner(Learner):
         weighting_factor = conversion_rates*self.prices
         idx = np.argmax(weighting_factor)
         return idx, np.max(conversion_rates)
-
-    def get_price_from_index(self, idx):
-        return self.prices[idx]
 
     def update(self, pulled_arm, reward):
         self.t += 1

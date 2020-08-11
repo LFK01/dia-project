@@ -2,12 +2,12 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 
-from src.advertising.learner.gpts_learner import GPTSLearner
-from src.advertising.solver.knapsack import Knapsack
-from src.pricing.environment import Environment as PricingEnvironment
-from src.advertising.environment.click_budget import ClickBudget as AdvertisingEnvironment
-from src.pricing.reward_function import rewards
-from src.pricing.ts_learner import TSLearner
+from src.utils.knapsack import Knapsack
+from src.utils.click_budget import ClickBudget as AdvertisingEnvironment
+from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
+from src.assignment_2.gpts_learner import GPTSLearner
+from src.assignment_4.reward_function import rewards
+from src.assignment_4.ts_learner import TSLearner
 
 # number of timesteps
 T = 100
@@ -75,7 +75,7 @@ for e in range(0, n_experiments):
                                        probabilities=user_classes_probabilities_vector,
                                        number_of_classes=len(user_classes_probabilities_vector))
         # saving of the prices
-        ts_learner_pricing.set_prices(conversion_prices)
+        ts_learner_pricing.prices = conversion_prices
 
         # arrays to store the Gaussian Processes Thompson Sampling Learners
         gpts_learner_advertising = []
@@ -107,7 +107,7 @@ for e in range(0, n_experiments):
             # retrieve the conversion rate vector from the learner corresponding to one price index
             conversion_rate_vector = ts_learner_pricing.get_conversion_rate(price_index)
             # retrieve the corresponding price
-            proposed_price = ts_learner_pricing.get_price_from_index(idx=price_index)
+            proposed_price = ts_learner_pricing.prices[price_index]
 
             reward_pricing = []
 
@@ -203,14 +203,15 @@ for arm in range(n_arms_pricing):
     print(regrets)
     # axs[arm - 1, 0].ylabel("Regret")
     # axs[arm - 1, 0].xlabel("t")
-    axs[arm, 0].plot(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)),
-             'g')
+    axs[arm, 0].plot(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
+                                       axis=0)), 'g')
     axs[arm, 0].legend(["Cumulative Regret"])
     # plt.savefig('cum_regret_arm_' + str(arm) + '.png')
 
     # axs[arm - 1, 1].ylabel("Regret")
     # axs[arm - 1, 1].xlabel("t")
-    axs[arm, 1].plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
+    axs[arm, 1].plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
+                              axis=0)), 'r')
     axs[arm, 1].legend(["Regret"])
 
 for ax in axs.flat:

@@ -1,10 +1,13 @@
 import time
-from src.advertising.environment.click_2 import *
-from src.advertising.learner.gpts_learner import *
-from src.advertising.solver.knapsack import *
+import numpy as np
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 # Parameters initialization
+from src.assignment_2.click_env import ClickEnv
+from src.assignment_2.gpts_learner import GPTSLearner
+from src.utils.knapsack import Knapsack
+
 subcampaign = [0, 1, 2]
 
 min_budget = 0.0
@@ -27,7 +30,7 @@ collected_rewards_per_experiments = []
 env = []
 budgets = []
 for s in subcampaign:
-    env.append(click_2(daily_budget, sigma, x_values[s], y_values[s], s + 1))
+    env.append(ClickEnv(daily_budget, sigma, x_values[s], y_values[s], s + 1))
 
 # print("Starting experiments...")
 for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
@@ -104,7 +107,6 @@ plt.xlabel("t")
 plt.plot(np.cumsum(np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)), 'g')
 plt.legend(["Cumulative Regret"])
 plt.show()
-plt.savefig("plot/cumreg")
 
 plt.figure()
 plt.ylabel("Regret")
@@ -112,4 +114,3 @@ plt.xlabel("t")
 plt.plot((np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)), 'r')
 plt.legend(["Regret"])
 plt.show()
-plt.savefig("plot/reg")

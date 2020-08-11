@@ -1,5 +1,5 @@
 import numpy as np
-from src.advertising.learner.learner import Learner
+from src.utils.learner import Learner
 
 
 class GreedyLearner(Learner):
@@ -24,8 +24,8 @@ class GreedyLearner(Learner):
     def pull_arm(self):
         if self.t < self.n_arms:
             return self.t
-        indexes = np.argwhere(np.sum(self.expected_payoffs, axis=0) == np.amax(np.sum(self.expected_payoffs, axis=0)))\
-            .reshape(-1)
+        indexes = np.argwhere(np.sum(self.expected_payoffs, axis=0) ==
+                              np.amax(np.sum(self.expected_payoffs, axis=0))).reshape(-1)
         pulled_arm = np.random.choice(indexes)
         return pulled_arm
 
