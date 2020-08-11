@@ -122,7 +122,8 @@ for e in range(0, n_experiments):
                 # retrieve the number of clicks for each arms according to the learner
                 click_numbers_vector = np.array(gpts_learner_advertising[s].pull_arm())
                 # compute the rewards composed of the product of clicks, prices and conversion rates
-                modified_rewards = click_numbers_vector * proposed_price * conversion_rate_vector[s]
+                modified_rewards = click_numbers_vector * proposed_price * conversion_rate_vector[s] \
+                                                                         * user_classes_probabilities_vector[s]
                 # store the rewards in the values_combination_of_each_subcampaign array
                 values_combination_of_each_subcampaign.append(modified_rewards.tolist())
 
@@ -138,7 +139,8 @@ for e in range(0, n_experiments):
                 advertising_obtained_clicks = environments_advertising[s].round(superarm[s])
                 # update the collected revenue value
                 total_revenue += advertising_obtained_clicks * proposed_price \
-                                                    * environments_pricing[s].conversion_rates[price_index]
+                                                             * environments_pricing[s].conversion_rates[price_index] \
+                                                             * user_classes_probabilities_vector[s]
                 # update the learner
                 gpts_learner_advertising[s].update(superarm[s], advertising_obtained_clicks)
 
@@ -168,7 +170,7 @@ for conversion_rate_index in range(n_arms_pricing):
         # retrieve the number of clicks for a subcampaign
         click_numbers_vector = np.array(environments_advertising[s].means)
         # compute the rewards for this specific price
-        modified_rewards = click_numbers_vector * price * conversion_rate_list[s]
+        modified_rewards = click_numbers_vector * price * conversion_rate_list[s] * user_classes_probabilities_vector[s]
         # store the rewards array for the subcampaign
         total_optimal_combination.append(modified_rewards.tolist())
 
@@ -180,7 +182,7 @@ for conversion_rate_index in range(n_arms_pricing):
     # compute the total revenue for all the subcampaigns
     for s in subcampaigns:
         revenue_advertising += environments_advertising[s].means[optimal_reward[s]] \
-                               * conversion_rate_list[s] * price
+                               * conversion_rate_list[s] * price * user_classes_probabilities_vector[s]
     # store the computed revenue
     revenue_advertising_list.append(revenue_advertising)
 
