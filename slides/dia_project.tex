@@ -1,11 +1,14 @@
 \documentclass[11pt]{beamer}
 \usetheme{default}
 \usecolortheme{beaver}
+\usepackage{fancyvrb}
 \usepackage[utf8]{inputenc}
+\usepackage{pmboxdraw}
 \usepackage[english]{babel}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
+\usepackage{listings}
 \author{Bacarella Mattia - 999999\\
 		Corda Francesco - 920212\\
 		Damato Davide - 920616\\
@@ -14,6 +17,34 @@
 \title{Pricing and Advertising}
 \subtitle{Project for the Data Intelligence Application Class\\
 		PoliMi 2019-2020}
+		
+\usepackage{xcolor}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{style=mystyle}
 %\setbeamercovered{transparent} 
 %\setbeamertemplate{navigation symbols}{} 
 %\logo{} 
@@ -31,11 +62,29 @@
 %\end{frame}
 
 \begin{frame}{Objective of the Project}
-The goal is to model a scenario in which a seller exploits advertising tools to attract more and more users to its website, thus increasing the number of possible buyers. The seller needs to learn simultaneously the conversion rate and the number of users the advertising tools can attract.
+\textit{The goal is to model a scenario in which a seller exploits advertising tools to attract more and more users to its website, thus increasing the number of possible buyers. The seller needs to learn simultaneously the conversion rate and the number of users the advertising tools can attract.}
+\end{frame}
+
+\begin{frame}[fragile]{Project Structure}
+\begin{itemize}
+\item Repository: \url{https://github.com/francescocorda/dia-project}
+\item Structure:
+\begin{verbatim}
+dia_project
+ ├── assignment_2
+ ├── assignment_3
+ ├── assignment_4
+ ├── assignment_5
+ ├── assignment_6
+ ├── assignment_7
+ └── utils
+\end{verbatim}
+\item The project is organized in modules, one for each assignment. To execute the code and reproduce our results, run the file assignment\_x.py in each module.
+\end{itemize}
 \end{frame}
 
 \begin{frame}{Assignment 1}
-Imagine one product to sell:
+\textit{Imagine one product to sell:
 \begin{itemize}
 \item three classes of users, where, for every user, we can observe the values of two binary features (feel free to choose the features and their domains);
 \item the conversion rate curve of each class of users;
@@ -43,31 +92,134 @@ Imagine one product to sell:
 \item three subcampaigns, each with a different ad, to advertise the product, and each targeting a different class of users;
 \item there are three abrupt phases;
 \item for every abrupt phase and for every subcampaign, the probability distribution over the daily number of clicks for every value of budget allocated to that subcampaign.
-\end{itemize}
+\end{itemize}}
 \end{frame}
 
 \begin{frame}{Assignment 2}
-Design a combinatorial bandit algorithm to optimize the budget allocation over the three subcampaigns to maximize the total number of clicks when, for simplicity, there is only one phase. Plot the cumulative regret.
+\textit{Design a combinatorial bandit algorithm to optimize the budget allocation over the three subcampaigns to maximize the total number of clicks when, for simplicity, there is only one phase. Plot the cumulative regret.}
+\end{frame}
+
+\begin{frame}[fragile]{Assignment 2 - Pseudocode}
+\begin{lstlisting}
+initialize click envs
+for exp in n_experiments:
+  initialize gp-ts learners
+  for t in time_horizon:
+    draw samples for each subcampaign
+    find super-arm by solving knapsack problem
+    pull arms given by super-arm
+    update gp-ts learners
+calculate clairvoyant value
+plot rewards and regrets
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}{Assignment 3}
-Design a sliding-window combinatorial bandit algorithm for the case, instead, in which there are the three phases aforementioned. Plot the cumulative regret and compare it with the cumulative regret that a non-sliding-window algorithm would obtain.
+\textit{Design a sliding-window combinatorial bandit algorithm for the case, instead, in which there are the three phases aforementioned. Plot the cumulative regret and compare it with the cumulative regret that a non-sliding-window algorithm would obtain.}
+\end{frame}
+
+\begin{frame}[fragile]{Assignment 3 - Pseudocode}
+\begin{lstlisting}
+initialize click envs
+for exp in n_experiments:
+  initialize gp-ts and gp-ts-sw learners 
+  for t in time_horizon:
+  	if abprupt_phase is changed:
+  		reset memory of the learners
+    draw samples for each subcampaign
+    find super-arm by solving knapsack problem
+    pull arms given by super-arm
+    update gp-ts and gp-ts-sw learners
+calculate clairvoyant value
+plot rewards and regrets for the 2 learners
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}{Assignment 4}
-Design a learning algorithm for pricing when the users that will buy the product are those that have clicked on the ads. Assume that the allocation of the budget over the three subcampaigns is fixed and there is only one phase (make this assumption also in the next steps). Plot the cumulative regret.
+\textit{Design a learning algorithm for pricing when the users that will buy the product are those that have clicked on the ads. Assume that the allocation of the budget over the three subcampaigns is fixed and there is only one phase (make this assumption also in the next steps). Plot the cumulative regret.}
+\end{frame}
+
+\begin{frame}[fragile]{Assignment 4 - Pseudocode}
+\begin{lstlisting}
+initialize pricing envs
+for exp in n_experiments:
+  initialize ts and greedy learners 
+  for t in time_horizon:
+    draw samples for each subcampaign (ts learner)
+    update ts learner
+    draw samples for each subcampaign (greedy learner)
+    update greedy learner
+calculate clairvoyant value
+plot rewards and regrets for the 2 learners
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}{Assignment 5}
-Design and run a context generation algorithm for the pricing when the budget allocated to each single subcampaign is fixed. At the end of every week, use the collected data to generate contexts and then use these contexts for the following week. Plot the cumulative regret as time increases. In the next steps, do not use the generated contexts, but use all the data together.
+\textit{Design and run a context generation algorithm for the pricing when the budget allocated to each single subcampaign is fixed. At the end of every week, use the collected data to generate contexts and then use these contexts for the following week. Plot the cumulative regret as time increases. In the next steps, do not use the generated contexts, but use all the data together.}
+\end{frame}
+
+\begin{frame}[fragile]{Assignment 5 - Pseudocode}
+\begin{lstlisting}
+initialize pricing envs
+for exp in n_experiments:
+  initialize context generator 
+  for t in time_horizon:
+    if week is ended:
+      generate new contexts (greedy approach)
+    for context in n_contexts:
+      run ts algorithm
+calculate clairvoyant value
+plot rewards and regrets
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}{Assignment 6}
-Design an optimization algorithm combining the allocation of budget and the pricing when the seller a priori knows that every subcampaign is associated with a different context and charges a different price for every context. Suggestion: the value per click to use in the knapsack-like problem depends on the pricing, that depends on the number of users of a specific class interested in buying the product. Notice that the two problems, namely, pricing and advertising, can be decomposed since each subcampaign targets a single class of users, thus allowing the computation of the value per click of a campaign only on the basis of the number of clicks generated by that subcampaign. Plot the cumulative regret when the algorithm learns both the conversion rate curves and the performance of the advertising subcampaigns.
+\textit{Design an optimization algorithm combining the allocation of budget and the pricing when the seller a priori knows that every subcampaign is associated with a different context and charges a different price for every context. Suggestion: the value per click to use in the knapsack-like problem depends on the pricing, that depends on the number of users of a specific class interested in buying the product. Notice that the two problems, namely, pricing and advertising, can be decomposed since each subcampaign targets a single class of users, thus allowing the computation of the value per click of a campaign only on the basis of the number of clicks generated by that subcampaign. Plot the cumulative regret when the algorithm learns both the conversion rate curves and the performance of the advertising subcampaigns.}
+\end{frame}
+
+\begin{frame}[fragile]{Assignment 6 - Pseudocode}
+\begin{lstlisting}
+initialize pricing and click envs
+for exp in n_experiments:
+	initialize ts and gp-ts learners 
+	for t in time_horizon:
+		for s in subcampaign:
+			draw a (price, conversion_rate) sample with ts		learner
+			get return from the pricing env, given the price
+			update ts learner
+			draw click samples with gp-ts learner
+			weight the clicks with price and conversion_rate	previously selected by the ts learner
+		find super-arm by solving knapsack problem
+		get revenues = clicks * price * conversion_rate from the click envs by pulling the super-arm
+		update gp-ts learners 
+calculate clairvoyant value
+plot rewards and regrets
+\end{lstlisting}
 \end{frame}
 
 \begin{frame}{Assignment 7}
-Do the same of Step 6 under the constraint that the seller charges a unique price to all the classes of users. Suggestion: for every possible price, fix this price and repeat the algorithm used in Step 6. Plot the cumulative regret when the algorithm learns both the conversion rate curves and the performance of the advertising subcampaigns.
+\textit{Do the same of Step 6 under the constraint that the seller charges a unique price to all the classes of users. Suggestion: for every possible price, fix this price and repeat the algorithm used in Step 6. Plot the cumulative regret when the algorithm learns both the conversion rate curves and the performance of the advertising subcampaigns.}
+\end{frame}
+
+\begin{frame}[fragile]{Assignment 7 - Pseudocode}
+\begin{lstlisting}
+initialize pricing and click envs
+for exp in n_experiments:
+	for price in n_prices:
+		initialize ts and gp-ts learners 
+		for t in time_horizon:
+			for s in subcampaign:
+				select current price and conversion_rate 
+				get return from the pricing env, given the				price
+				update ts learner
+				draw click samples with gp-ts learner
+				weight the clicks with price and                   conversion_rate previously selected
+			find super-arm by solving knapsack problem
+			collect revenues = = clicks * price *             conversion_rate from the click envs by pulling    the super-arm
+			update gp-ts learners 
+calculate clairvoyant value
+plot rewards and regrets
+\end{lstlisting}
 \end{frame}
 
 \end{document}
