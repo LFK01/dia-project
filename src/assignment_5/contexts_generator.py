@@ -6,7 +6,7 @@ class ContextsGenerator:
     def __init__(self, user_class, user_class_probabilities, environment, n_arms):
         self.contexts = [ContextContainer(user_class, user_class_probabilities, environment, n_arms)]
         self.rewards = []
-        self.opt = []
+        self.opt = 0
 
     # Create a new context trying to split each of the context
     def generate_new_context(self):
@@ -25,13 +25,7 @@ class ContextsGenerator:
         total_rewards = 0
         for c in self.contexts:
             total_rewards += c.run_ts()
-
-        opt_per_round = 0
-        for c in self.contexts:
-            opt_per_round += c.get_opt()
-
         self.rewards.append(total_rewards)
-        self.opt.append(opt_per_round)
 
 
 def optimal_for_partition(classes_of_partition, all_probabilities, all_rewards):
