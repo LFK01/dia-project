@@ -6,7 +6,7 @@ from src.utils.knapsack import Knapsack
 from src.utils.click_budget import ClickBudget as AdvertisingEnvironment
 from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
 from src.assignment_2.gpts_learner import GPTSLearner
-from src.assignment_4.reward_function import rewards
+from src.assignment_6.reward_function_matrix import rewards
 from src.assignment_4.ts_learner import TSLearner
 
 # number of timesteps
@@ -41,9 +41,11 @@ n_arms_pricing = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
 # prices at which to sell the product
 conversion_prices = np.linspace(min_value_pricing, max_value_pricing, n_arms_pricing)
 # computation of the rewards constituted of the product of price and probability of selling
-rewards = rewards(conversion_prices, max_value_pricing)
-opt_pricing = np.max(rewards)
-rewards_normalized = np.divide(rewards, opt_pricing)
+rewards = rewards(conversion_prices, max_value_pricing, len(subcampaigns))
+opt_pricing = np.max(rewards, axis=1)
+rewards_normalized = []
+for s in subcampaigns:
+    rewards_normalized.append(np.divide(rewards[s], opt_pricing[s]))
 
 # array to store the rewards of the gaussian process for each experiment
 gp_rewards_per_experiment_advertising = []
@@ -59,7 +61,7 @@ gpts_learner_advertising = []
 
 # initialization of the environments
 for s in subcampaigns:
-    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized))
+    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized[s]))
     environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budget, sigma=sigma_advertising))
 
 # execution of the experiments

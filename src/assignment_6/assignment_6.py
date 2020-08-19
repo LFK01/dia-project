@@ -7,13 +7,13 @@ from src.utils.knapsack import Knapsack
 from src.assignment_6.weighted_ts_learner import WeightedTSLearner
 from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
 from src.utils.click_budget import ClickBudget as AdvertisingEnvironment
-from src.assignment_4.reward_function import rewards
+from src.assignment_6.reward_function_matrix import rewards
 
 # number of timesteps
-T = 250
+T = 150
 
 # number of experiments
-n_experiments = 10
+n_experiments = 2
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -40,12 +40,13 @@ n_arms_pricing = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
 # array of prices spacing from min_value_pricing to max_value_pricing
 conversion_prices = np.linspace(min_value_pricing, max_value_pricing, n_arms_pricing)
 # array of rewards composed of conversion rates multiplied by conversion_prices
-rewards = rewards(conversion_prices, max_value_pricing)
+rewards = rewards(conversion_prices, max_value_pricing, len(subcampaigns))
 # extracts the optimal reward
-opt_pricing = np.max(rewards)
+opt_pricing = np.max(rewards, axis=1)
 # normalizes the rewards curve
-rewards_normalized = np.divide(rewards, opt_pricing)
-opt_pricing_normalized = np.max(rewards_normalized)
+rewards_normalized = []
+for s in subcampaigns:
+    rewards_normalized.append(np.divide(rewards[s], opt_pricing[s]))
 
 # collects the rewards for each experiment for the pricing task executed by the Thompson Sampling algorithm
 ts_rewards_per_experiment_pricing = []
@@ -63,7 +64,7 @@ gpts_learner_advertising = []
 # initialization of the arrays of the rewards and of the environments
 for s in subcampaigns:
     ts_rewards_per_experiment_pricing.append([])
-    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized))
+    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized[s]))
     environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budgets, sigma=sigma_advertising))
 
 for e in range(0, n_experiments):
