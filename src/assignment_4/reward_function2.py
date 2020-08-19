@@ -6,14 +6,18 @@ import matplotlib.pyplot as plt
 # given the budget spent, returns number of clicks
 def rewards(price_list, demand_function, subcampaign_number, color='g'):
     # noise = np.random.normal(0, 1, len(price_list))
+    max_price = np.max(price_list)
+    min_price = np.min(price_list)
     noise = 0
     rewards_vector = price_list * demand_function(price_list)
     rewards_vector += noise
     negative_indexes = np.argwhere(rewards_vector < 0)
     rewards_vector[negative_indexes] = 0.0
+    x = np.linspace(min_price, max_price, 100)
+    y = [demand_function(x[j]) * x[j] for j in range(0, 100)]
     plt.ylabel("Rewards")
     plt.xlabel("arms")
-    plt.plot(price_list, rewards_vector, color)
+    plt.plot(x, y, color)
     plt.legend(["expected economic gain curve of the subcampaign " + str(subcampaign_number)])
     plt.show()
     return rewards_vector

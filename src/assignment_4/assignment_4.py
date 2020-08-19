@@ -15,7 +15,7 @@ min_price = 0.0
 max_price = 100.0
 
 # n_arms = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
-n_arms = 20
+n_arms = 15
 
 subcampaigns = [0, 1, 2]
 
