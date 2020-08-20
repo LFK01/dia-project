@@ -1,6 +1,7 @@
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from tqdm import tqdm
 
 # Parameters initialization
@@ -10,21 +11,24 @@ from src.utils.knapsack import Knapsack
 
 subcampaign = [0, 1, 2]
 
+# Read environment data from csv file
+data = pd.read_csv('../data/environment1.csv')
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 21
+n_arms = len(data.columns)
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 3
+
+x_values = [np.linspace(min_budget, max_budget, n_arms) for i in range(0, len(subcampaign))]
+y_values = []
+# The values of the y for each function
+for i in range(0, len(data.index)):
+    y_values.append(np.array(data.iloc[i]))
 
 # Time horizon
 T = 250
 # Number of experiments
 n_experiments = 50
-x_values = [np.linspace(min_budget, max_budget, 21) for i in range(0, len(subcampaign))]
-# The values of the y for each function
-y_values = [np.array([0, 3, 3, 6, 9, 15, 24, 39, 63, 165, 228, 328, 368, 398, 418, 428, 432, 433, 433, 433, 433]),
-            np.array([0, 2, 2, 4, 6, 10, 16, 26, 42, 68, 110, 178, 288, 408, 493, 533, 545, 550, 552, 553, 553]),
-            np.array([0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 527, 590, 605, 608, 609, 610])]
 
 collected_rewards_per_experiments = []
 env = []
