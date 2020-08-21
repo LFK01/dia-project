@@ -42,7 +42,7 @@ T = n_phases * 150
 # Window size proportional to the square root of T and always integer
 window_size = 85
 # Number of experiments
-n_experiments = 20
+n_experiments = 5
 # The number of the actual abrupt phase
 phase_number = 0
 
