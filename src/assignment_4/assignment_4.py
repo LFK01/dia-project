@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
+import pandas as pd
 
 from src.assignment_4.greedy_learner import GreedyLearner
 from src.assignment_4.reward_function2 import rewards
@@ -13,22 +14,26 @@ n_experiments = 100
 
 min_price = 0.0
 max_price = 100.0
-
 # n_arms = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
-n_arms = 15
 
 subcampaigns = [0, 1, 2]
+readFile = '../data/pricing.csv'
+
+# Read environment data from csv file
+data = pd.read_csv(readFile)
+n_arms = len(data.columns)
+
+x_values = [np.linspace(min_price, max_price, n_arms) for i in range(0, len(subcampaigns))]
+y_values = []
+# The values of the y for each function
+for i in range(0, len(data.index)):
+    y_values.append(np.array(data.iloc[i]))
 
 probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
 
 conversion_prices = np.linspace(min_price, max_price, n_arms)
 all_rewards_vector = []
 
-x_values = [np.linspace(min_price, max_price, 21) for i in range(0, len(subcampaigns))]
-# The values of the y for each function
-y_values = [np.array([1, 1, 0.99, 0.97, 0.94, 0.90, 0.85, 0.79, 0.72, 0.63, 0.52, 0.39, 0.26, 0.16, 0.08, 0.04, 0.02, 0.02, 0.01, 0, 0]),
-            np.array([1, 1, 1, 0.985, 0.955, 0.91, 0.85, 0.775, 0.685, 0.58, 0.46, 0.34, 0.23, 0.14, 0.07, 0.02, 0.01, 0.005, 0.004, 0.002, 0]),
-            np.array([1, 1, 1, 1, 0.98, 0.94, 0.86, 0.70, 0.50, 0.35, 0.25, 0.20, 0.17, 0.15, 0.13, 0.11, 0.08, 0.07, 0.04, 0.015, 0])]
 demand_functions = [interpolate.interp1d(x_values[i], y_values[i]) for i in subcampaigns]
 for subcampaign in subcampaigns:
     plt.ylabel("Conversion_probability")

@@ -1,20 +1,39 @@
 import time
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 from tqdm import tqdm
 from src.assignment_3.non_stat_click_env import NonStatClickEnv
 from src.assignment_2.gpts_learner import GPTSLearner
 from src.assignment_3.gpts_learner_sw import GPTSLearnerSW
 from src.utils.knapsack import Knapsack
 
-
 # Parameters initialization
 subcampaign = [0, 1, 2]
+readFile = ['../data/subcampaign0.csv', '../data/subcampaign1.csv', '../data/subcampaign2.csv']
+
+# Save array to csv
+# for i in subcampaign:
+#     pd.DataFrame(value[0]).to_csv(readFile[i], index=None)
+
 min_budget = 0.0
 max_budget = 1.0
-n_arms = 21
-daily_budget = np.linspace(min_budget, max_budget, n_arms)
 sigma = 3
+
+y_value = [[], [], []]
+data = []
+
+# BUILD OF THE 3 ENVIRONMENTS. ONE FOR EACH SUBCAMPAIGN. The single environment is not stationary
+for i in subcampaign:
+    # Read environment data from csv file
+    data.append(pd.read_csv(readFile[i]))
+    for j in range(0, len(data[i].index)):
+        # The values of the y for each phase
+        y_value[i].append(np.array(data[i].iloc[j]))
+
+n_arms = len(data[0].columns)
+daily_budget = np.linspace(min_budget, max_budget, n_arms)
+x_values = [np.linspace(min_budget, max_budget, n_arms) for i in range(0, len(subcampaign))]
 
 # number of phases
 n_phases = 3
@@ -27,31 +46,14 @@ n_experiments = 20
 # The number of the actual abrupt phase
 phase_number = 0
 
-# BUILD OF THE 3 ENVIRONMENTS. ONE FOR EACH SUBCAMPAIGN. The single environment is not stationary
-# define the values of the x
-x_values = [np.linspace(min_budget, max_budget, n_arms) for i in range(0, n_phases)]
-# The values of the y for each phase
-# subcampaign 1
-y1_values = [np.array([0, 3, 3, 6, 9, 15, 24, 39, 63, 102, 165, 228, 328, 368, 398, 418, 428, 432, 433, 433, 433]),
-             np.array([0, 5, 5, 10, 15, 25, 40, 65, 105, 170, 275, 320, 350, 365, 372, 374, 375, 375, 375, 375, 375]),
-             np.array([0, 4, 4, 8, 12, 20, 32, 52, 84, 136, 220, 310, 355, 377, 388, 393, 395, 396, 397, 397, 397])]
-# subcampaign 2
-y2_values = [np.array([0, 2, 2, 4, 6, 10, 16, 26, 42, 68, 110, 178, 288, 408, 493, 533, 545, 550, 552, 553, 553]),
-             np.array([0, 6, 6, 12, 18, 30, 48, 78, 126, 204, 304, 354, 379, 392, 398, 401, 403, 404, 404, 404, 404]),
-             np.array([0, 10, 10, 20, 30, 50, 80, 130, 210, 270, 300, 315, 322, 325, 327, 326, 326, 326, 326, 326, 326])]
-# subcampaign 3
-y3_values = [np.array([0, 1, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89, 144, 233, 377, 527, 590, 605, 608, 609, 610]),
-             np.array([0, 8, 8, 16, 24, 42, 66, 108, 174, 282, 380, 420, 450, 465, 472, 475, 477, 478, 478, 478, 478]),
-             np.array([0, 9, 9, 18, 27, 45, 90, 135, 225, 310, 350, 370, 380, 385, 387, 388, 388, 388, 388, 388, 388])]
-
 # Length of the phases
 phase_length = [T / 3, T / 3, T / 3]
 # define the budgets
 budget_matrix = [daily_budget for _ in range(0, n_phases)]
 # define 3 non stationary environment, one for each subcampaign
-environment_first_subcampaign = NonStatClickEnv(phase_length, x_values, y1_values, sigma, budget_matrix, 1, 'r')
-environment_second_subcampaign = NonStatClickEnv(phase_length, x_values, y2_values, sigma, budget_matrix, 2, 'b')
-environment_third_subcampaign = NonStatClickEnv(phase_length, x_values, y3_values, sigma, budget_matrix, 3, 'g')
+environment_first_subcampaign = NonStatClickEnv(phase_length, x_values, y_value[0], sigma, budget_matrix, 1, 'r')
+environment_second_subcampaign = NonStatClickEnv(phase_length, x_values, y_value[1], sigma, budget_matrix, 2, 'b')
+environment_third_subcampaign = NonStatClickEnv(phase_length, x_values, y_value[2], sigma, budget_matrix, 3, 'g')
 env = [environment_first_subcampaign, environment_second_subcampaign, environment_third_subcampaign]
 # END
 
@@ -163,7 +165,8 @@ ts_instantaneous_regret[times_of_change[n_phases - 1]: phase_length[n_phases - 1
     = opt_per_phases[n_phases - 1] - np.mean(collected_rewards_per_experiments, axis=0)[
                                      times_of_change[n_phases - 1]: phase_length[n_phases - 1] + times_of_change[
                                          n_phases - 1]]
-swts_instantaneous_regret[times_of_change[n_phases - 1]: phase_length[n_phases - 1] + times_of_change[n_phases - 1]] = \
+swts_instantaneous_regret[
+times_of_change[n_phases - 1]: phase_length[n_phases - 1] + times_of_change[n_phases - 1]] = \
     opt_per_phases[
         n_phases - 1] - np.mean(
         sw_collected_rewards_per_experiments, axis=0)[
