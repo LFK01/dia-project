@@ -205,15 +205,15 @@ for arm in range(n_arms_pricing):
     print(regrets)
     # axs[arm - 1, 0].ylabel("Regret")
     # axs[arm - 1, 0].xlabel("t")
-    axs[arm, 0].plot(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
-                                       axis=0)), 'g')
+    axs[arm, 0].plot_curves(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
+                                              axis=0)), 'g')
     axs[arm, 0].legend(["Cumulative Regret"])
     # plt.savefig('cum_regret_arm_' + str(arm) + '.png')
 
     # axs[arm - 1, 1].ylabel("Regret")
     # axs[arm - 1, 1].xlabel("t")
-    axs[arm, 1].plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
-                              axis=0)), 'r')
+    axs[arm, 1].plot_curves((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
+                                     axis=0)), 'r')
     axs[arm, 1].legend(["Regret"])
 
 for ax in axs.flat:

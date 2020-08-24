@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 
 
 # Conversion rate curve:
-# given the budget spent, returns number of clicks
-# a = 100, b = 1.0, c = 4, d = 3, e = 3
 def clicks(budgets, function):
     return function(budgets)
 
@@ -23,9 +21,13 @@ class ClickEnv:
     def __init__(self, budgets, sigma, x_values, y_values, subcampaign_number, color='g'):
         self.budgets = budgets
         self.function = interpolate.interp1d(x_values, y_values)
-        plt.ylabel("Rewards")
-        plt.xlabel("arms")
-        plt.plot(x_values, y_values, color)
+        plt.ylabel("Expected number of clicks")
+        plt.xlabel("Percentage of daily budget allocated")
+        x_max = np.max(x_values)
+        x_min = np.min(x_values)
+        x = np.linspace(x_max, x_min, 100)
+        y = [self.function(x[i]) for i in range(0, 100)]
+        plt.plot(x, y, color)
         plt.legend(["environment function of the subcampaign " + str(subcampaign_number)])
         plt.show()
         self.means = clicks(budgets, self.function)
@@ -33,7 +35,7 @@ class ClickEnv:
 
     def round(self, pulled_arm):
         # Returning the rewards avoiding negative value
-        return np.maximum(0, np.random.normal(self.means[pulled_arm], self.sigmas[pulled_arm]))
+        return np.maximum(0, np.random.normal(0, self.sigmas[pulled_arm]) + self.means[pulled_arm])
 
     def get_clicks_function(self):
         return self

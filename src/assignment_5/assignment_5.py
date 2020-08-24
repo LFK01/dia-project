@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-from src.assignment_4.reward_function2 import rewards
+from src.assignment_4.reward_function import rewards
 from src.assignment_4.pricing_env import PricingEnv
 from src.assignment_5.contexts_generator import ContextsGenerator, compute_optimum
 from tqdm import tqdm
@@ -13,7 +13,7 @@ min_price = 0.0
 max_price = 1.00
 
 user_class = [0, 1, 2]
-user_class_probabilities = [0.1, 0.5, 0.4]
+user_class_probabilities = [2/10, 2/5, 2/5]
 
 readFile = '../data/pricing.csv'
 

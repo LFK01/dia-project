@@ -38,9 +38,9 @@ x_values = [np.linspace(min_budget, max_budget, n_arms) for i in range(0, len(su
 # number of phases
 n_phases = 3
 # Time horizon multiple of the number of phases
-T = n_phases * 150
+T = n_phases * 120
 # Window size proportional to the square root of T and always integer
-window_size = 85
+window_size = 120
 # Number of experiments
 n_experiments = 5
 # The number of the actual abrupt phase
@@ -95,7 +95,6 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
                         index += 1
                 gpts_learner[s].generate_gaussian_process(new_x, new_y, True)
                 sw_gpts_learner[s].generate_gaussian_process(new_x, new_y, True)
-                print("\nend training hyperparameters\n")
         total_subcampaign_combination = []
         sw_total_subcampaign_combination = []
         for s in subcampaign:

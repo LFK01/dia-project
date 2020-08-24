@@ -1,6 +1,5 @@
 import math as m
 import numpy as np
-from src.assignment_4.reward_function import rewards
 from src.assignment_5.ts_learner_contexts import TSLearnerContext
 from src.assignment_4.pricing_env import PricingEnv
 
@@ -53,7 +52,7 @@ class ContextContainer:
         # If we have no enough rewards (data in this case) for some arm in some class, we can't compute the hoeffding bound
         for i in range(0, self.__n_arms):
             for cls in self.__context:
-                if len(self.__reward_per_arm[cls][i]) < 11:
+                if len(self.__reward_per_arm[cls][i]) < 4:
                     raise
 
         current_context_bound = self.__compute_hoeffding_bounds(self.__context, self.__context_optimal_arm)
@@ -101,21 +100,3 @@ class ContextContainer:
         print("Context ", context_id, ": ", self.__context)
 
 
-if __name__ == "__main__":
-    prob = [0.5, 0.3, 0.2]
-    arm = 11
-    classes = [0, 1, 2]
-    min_price = 0.0
-    max_price = 1.0
-    prices = np.linspace(min_price, max_price, arm)
-    rewards = [rewards(prices, max_price) for i in range(0, 3)]
-    environments = [PricingEnv(n_arms=arm, conversion_rates=rewards[cls]) for cls in range(0, 3)]
-    obj = ContextContainer(classes, prob, environments, arm)
-    for i in range(0, 200):
-        obj.run_ts()
-    containers = obj.split_context()
-    for i in range(0, 100):
-        if containers is not None and len(containers) == 2:
-            containers[0].run_ts()
-            containers[1].run_ts()
-    print("done")

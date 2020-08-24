@@ -14,7 +14,7 @@ class GPTSLearner(Learner):
         self.means = np.zeros(self.n_arms)
         self.sigmas = np.ones(self.n_arms) * 10
         self.pulled_arms = []
-        self.alpha = 3
+        self.alpha = 2
         kernel = ConstantKernel(1.0, (1e-3, 1e3)) * RBF(1.0, (1e-3, 1e3))
         self.gp = GaussianProcessRegressor(kernel=kernel,
                                            alpha=self.alpha ** 2,

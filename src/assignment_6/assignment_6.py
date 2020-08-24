@@ -1,19 +1,21 @@
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
+import pandas as pd
 
 from src.assignment_2.gpts_learner import GPTSLearner
 from src.utils.knapsack import Knapsack
 from src.assignment_6.weighted_ts_learner import WeightedTSLearner
 from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
-from src.utils.click_budget import ClickBudget as AdvertisingEnvironment
+from src.assignment_2.click_env import ClickEnv
 from src.assignment_6.reward_function_matrix import rewards
 
 # number of timesteps
-T = 150
+T = 360
+colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 2
+n_experiments = 10
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -24,23 +26,41 @@ max_value_advertising = 1.0
 # sigma value for the variance of the number of clicks
 sigma_advertising = 1
 
-# number of arms for advertising
-n_arms_advertising = 21
-
-# array of budgets spacing from min_value_advertising to max_value_advertising
-daily_budgets = np.linspace(min_value_advertising, max_value_advertising, n_arms_advertising)
-
 # minimum and maximum value for the pricing
 min_value_pricing = 0.0
 max_value_pricing = 100.0
 
-# number of arms for pricing
+readFile = '../data/pricing.csv'
+
+# Read environment data from csv file
+data = pd.read_csv(readFile)
 n_arms_pricing = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
+print(n_arms_pricing)
+
+y_values_pricing = []
+# The values of the y for each function
+for i in range(0, len(data.index)):
+    y_values_pricing.append(np.array(data.iloc[i]))
+
+x_values_pricing = [np.linspace(min_value_pricing, max_value_pricing, len(y_values_pricing[0])) for i in range(0, len(subcampaigns))]
+
+
+data = pd.read_csv('../data/environment1.csv')
+n_arms_advertising = 21
+# array of budgets spacing from min_value_advertising to max_value_advertising
+daily_budgets = np.linspace(min_value_advertising, max_value_advertising, n_arms_advertising)
+
+
+y_values_advertising = []
+# The values of the y for each function
+for i in range(0, len(data.index)):
+    y_values_advertising.append(np.array(data.iloc[i]))
+x_values_advertising = [np.linspace(min_value_advertising, max_value_advertising, len(y_values_advertising[0])) for a in range(0, len(subcampaigns))]
 
 # array of prices spacing from min_value_pricing to max_value_pricing
 conversion_prices = np.linspace(min_value_pricing, max_value_pricing, n_arms_pricing)
 # array of rewards composed of conversion rates multiplied by conversion_prices
-rewards = rewards(conversion_prices, max_value_pricing, len(subcampaigns))
+rewards = rewards(conversion_prices, len(subcampaigns), x_values_pricing, y_values_pricing)
 # extracts the optimal reward
 opt_pricing = np.max(rewards, axis=1)
 # normalizes the rewards curve
@@ -65,7 +85,8 @@ gpts_learner_advertising = []
 for s in subcampaigns:
     ts_rewards_per_experiment_pricing.append([])
     environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized[s]))
-    environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budgets, sigma=sigma_advertising))
+    environments_advertising.append(
+        ClickEnv(daily_budgets, sigma_advertising, x_values_advertising[s], y_values_advertising[s], s, colors[s]))
 
 for e in range(0, n_experiments):
 
@@ -101,7 +122,6 @@ for e in range(0, n_experiments):
 
         # Thompson Sampling and GP-TS Learner
         for s in subcampaigns:
-
             # thompson sampling
             # the learner pulls the best arm according to its estimation, the pulled arm returns the index of the
             # according chosen price and the estimated conversion rate of the arm

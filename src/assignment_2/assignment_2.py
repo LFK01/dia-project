@@ -10,6 +10,7 @@ from src.assignment_2.gpts_learner import GPTSLearner
 from src.utils.knapsack import Knapsack
 
 subcampaign = [0, 1, 2]
+colors = ['r', 'b', 'g']
 
 # Read environment data from csv file
 data = pd.read_csv('../data/environment1.csv')
@@ -17,7 +18,7 @@ min_budget = 0.0
 max_budget = 1.0
 n_arms = len(data.columns)
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
-sigma = 3
+sigma = 2
 
 x_values = [np.linspace(min_budget, max_budget, n_arms) for i in range(0, len(subcampaign))]
 y_values = []
@@ -26,15 +27,15 @@ for i in range(0, len(data.index)):
     y_values.append(np.array(data.iloc[i]))
 
 # Time horizon
-T = 250
+T = 120
 # Number of experiments
-n_experiments = 50
+n_experiments = 30
 
 collected_rewards_per_experiments = []
 env = []
 budgets = []
 for s in subcampaign:
-    env.append(ClickEnv(daily_budget, sigma, x_values[s], y_values[s], s + 1))
+    env.append(ClickEnv(daily_budget, sigma, x_values[s], y_values[s], s + 1, colors[s]))
 
 # print("Starting experiments...")
 for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
@@ -70,15 +71,6 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
             reward = env[s].round(superarm[s])
             total_clicks += reward
             gpts_learner[s].update(superarm[s], reward)
-
-        # this  is just to debugging purposes and nothing more
-        if total_clicks > 613.0 and 613.0 < env[0].means[superarm[0]] + env[1].means[
-            superarm[1]] + env[2].means[superarm[2]]:
-            print("\nbudget= ", daily_budget[superarm[0]], "+", daily_budget[superarm[1]], "+",
-                  daily_budget[superarm[2]], '=',
-                  daily_budget[superarm[0]] + daily_budget[superarm[1]] + daily_budget[superarm[2]], "\n")
-            print("\nclicks: ", env[0].means[superarm[0]] + env[1].means[
-                superarm[1]] + env[2].means[superarm[2]], "\n")
 
         # append the clicks to total_clicks
         total_clicks_per_t.append(total_clicks)

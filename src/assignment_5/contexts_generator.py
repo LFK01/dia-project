@@ -49,5 +49,4 @@ def compute_optimum(all_classes, all_probabilities, all_rewards):
         value_all_splitted += optimal_for_partition([cls], all_probabilities, all_rewards)
     values_of_partitions.append(value_all_splitted)
     index = int(np.argmax(values_of_partitions))
-    print("optimal partition: ", partitions[index], "\n")
     return values_of_partitions[index]

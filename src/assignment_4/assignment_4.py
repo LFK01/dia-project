@@ -4,7 +4,7 @@ from scipy import interpolate
 import pandas as pd
 
 from src.assignment_4.greedy_learner import GreedyLearner
-from src.assignment_4.reward_function2 import rewards
+from src.assignment_4.reward_function import rewards
 from src.assignment_4.ts_learner import TSLearner
 from src.assignment_4.pricing_env import PricingEnv
 
