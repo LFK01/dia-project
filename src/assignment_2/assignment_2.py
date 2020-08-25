@@ -1,3 +1,4 @@
+import os
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -7,13 +8,14 @@ from tqdm import tqdm
 # Parameters initialization
 from src.assignment_2.click_env import ClickEnv
 from src.assignment_2.gpts_learner import GPTSLearner
+from src.utils.constants import img_path
 from src.utils.knapsack import Knapsack
 
 subcampaign = [0, 1, 2]
 colors = ['r', 'b', 'g']
 
 # Read environment data from csv file
-data = pd.read_csv('../data/environment1.csv')
+data = pd.read_csv('../data/click_env.csv')
 min_budget = 0.0
 max_budget = 1.0
 n_arms = len(data.columns)
@@ -102,6 +104,8 @@ plt.ylabel("Regret")
 plt.xlabel("t")
 plt.plot(np.cumsum(np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)), 'g')
 plt.legend(["Cumulative Regret"])
+img_name = "assignment_2_cum_regret.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()
 
 plt.figure()
@@ -109,4 +113,6 @@ plt.ylabel("Regret")
 plt.xlabel("t")
 plt.plot((np.mean(np.array(opt) - collected_rewards_per_experiments, axis=0)), 'r')
 plt.legend(["Regret"])
+img_name = "assignment_2_regret.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()

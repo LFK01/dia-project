@@ -1,7 +1,10 @@
+import os
+
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 
+from src.utils.constants import img_path
 from src.utils.knapsack import Knapsack
 from src.utils.click_budget import ClickBudget as AdvertisingEnvironment
 from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
@@ -10,10 +13,10 @@ from src.assignment_6.reward_function_matrix import rewards
 from src.assignment_4.ts_learner import TSLearner
 
 # number of timesteps
-T = 100
+T = 10
 
 # number of experiments
-n_experiments = 2
+n_experiments = 1
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -223,5 +226,6 @@ for ax in axs.flat:
 # for ax in axs.flat:
 #     ax.label_outer()
 
+img_name = "assignment_7_regrets.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()
-# plt.savefig('regret_arm_' + str(arm) + '.png')

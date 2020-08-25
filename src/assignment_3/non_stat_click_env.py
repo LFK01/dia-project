@@ -17,7 +17,7 @@ class NonStatClickEnv:
         self.n_phases = len(phases_length)
         # Functions of each abrupt phases obtained through interpolation
         self.functions = [interpolate.interp1d(x_values[index], y_values[index]) for index in range(0, self.n_phases)]
-        visualizer = curve_visualizer(self.functions, x_values, subcampaign_number)
+        visualizer = CurveVisualizer(self.functions, x_values, subcampaign_number)
         visualizer.plot_curves()
         # for phases_index in range(0, self.n_phases):
         # plot the phase_index+1 function

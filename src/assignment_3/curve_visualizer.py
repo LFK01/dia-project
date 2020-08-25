@@ -1,8 +1,11 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
+from src.utils.constants import subcampaign_names, abrupt_phases_names, img_path
 
 
-class curve_visualizer:
+class CurveVisualizer:
     def __init__(self, functions, x_values, subcampaign_number):
         self.functions = functions
         self.color = ['r', 'g', 'b']
@@ -18,11 +21,13 @@ class curve_visualizer:
         legend_vector = []
         plt.ylabel("Clicks")
         plt.xlabel("Percentage of allocated daily budget")
+        plt.title(subcampaign_names[self.subcampaign_number-1] + ' - Abrupt Phases')
         for phase in range(0, self.n_phases):
             y[phase] = [self.functions[phase](i) for i in x]
             plt.plot(x, y[phase], self.color[phase])
-            legend_vector.append(
-                "Environment function of the subcampaign " + str(self.subcampaign_number) + ", abrupt phase: "
-                + str(phase + 1))
+            legend_vector.append("Abrupt phase " + str(phase + 1) + " "
+                                 + abrupt_phases_names[phase])
         plt.legend(legend_vector)
+        img_name = "subcampaign_" + str(self.subcampaign_number) + "_abrupt_phases.png"
+        plt.savefig(os.path.join(img_path, img_name))
         plt.show()

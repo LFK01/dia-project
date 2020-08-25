@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -6,6 +8,8 @@ from src.assignment_4.pricing_env import PricingEnv
 from src.assignment_5.contexts_generator import ContextsGenerator, compute_optimum
 from tqdm import tqdm
 from scipy import interpolate
+
+from src.utils.constants import img_path
 
 T = 18250
 n_experiment = 100
@@ -77,6 +81,8 @@ plt.xlabel("t")
 plt.plot(np.mean(ts_rewards_per_experiment, axis=0), 'g')
 plt.plot(opt, '--k')
 plt.legend(["TS", "Optimum"])
+img_name = "assignment_5_reward.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()
 
 plt.figure(1)
@@ -84,4 +90,6 @@ plt.ylabel("Regret")
 plt.xlabel("t")
 plt.plot(np.cumsum(ts_instantaneous_regret), 'g')
 plt.legend(["TS"])
+img_name = "assignment_5_cum_regret.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()

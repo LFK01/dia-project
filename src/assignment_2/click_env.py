@@ -1,3 +1,5 @@
+import os
+from src.utils.constants import subcampaign_names, img_path
 import numpy as np
 from scipy import interpolate
 import matplotlib.pyplot as plt
@@ -28,7 +30,9 @@ class ClickEnv:
         x = np.linspace(x_max, x_min, 100)
         y = [self.function(x[i]) for i in range(0, 100)]
         plt.plot(x, y, color)
-        plt.legend(["environment function of the subcampaign " + str(subcampaign_number)])
+        plt.legend(["Subcampaign " + str(subcampaign_number) + " " + subcampaign_names[subcampaign_number - 1]])
+        img_name = "subcampaign_" + str(subcampaign_number) + ".png"
+        plt.savefig(os.path.join(img_path, img_name))
         plt.show()
         self.means = clicks(budgets, self.function)
         self.sigmas = np.ones(len(budgets)) * sigma

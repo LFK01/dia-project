@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
@@ -7,6 +9,7 @@ from src.assignment_4.greedy_learner import GreedyLearner
 from src.assignment_4.reward_function import rewards
 from src.assignment_4.ts_learner import TSLearner
 from src.assignment_4.pricing_env import PricingEnv
+from src.utils.constants import subcampaign_names, img_path
 
 T = 300
 
@@ -30,18 +33,20 @@ for i in range(0, len(data.index)):
     y_values.append(np.array(data.iloc[i]))
 
 probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
-
 conversion_prices = np.linspace(min_price, max_price, n_arms)
 all_rewards_vector = []
 
 demand_functions = [interpolate.interp1d(x_values[i], y_values[i]) for i in subcampaigns]
+
 for subcampaign in subcampaigns:
-    plt.ylabel("Conversion_probability")
+    plt.ylabel("Conversion Probability")
     plt.xlabel("Prices")
     x = np.linspace(min_price, max_price, 100)
     y = [demand_functions[subcampaign](x[i]) for i in range(0, 100)]
     plt.plot(x, y, 'g')
-    plt.legend(["demand function of the subcampaign " + str(subcampaign + 1)])
+    plt.legend(["Subcampaign " + str(subcampaign+1) + " " + subcampaign_names[subcampaign]])
+    img_name = "demand_curve_" + str(subcampaign + 1) + ".png"
+    plt.savefig(os.path.join(img_path, img_name))
     plt.show()
 
 rewards = [rewards(conversion_prices, demand_functions[i], i + 1) for i in subcampaigns]
@@ -126,5 +131,6 @@ for ax in axs.flat:
     else:
         ax.set(xlabel='t', ylabel='Regret')
     # ax.label_outer()
-
+img_name = "assignment_4_regrets.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()

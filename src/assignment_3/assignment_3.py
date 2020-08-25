@@ -1,3 +1,4 @@
+import os
 import time
 import numpy as np
 import matplotlib.pyplot as plt
@@ -6,11 +7,12 @@ from tqdm import tqdm
 from src.assignment_3.non_stat_click_env import NonStatClickEnv
 from src.assignment_2.gpts_learner import GPTSLearner
 from src.assignment_3.gpts_learner_sw import GPTSLearnerSW
+from src.utils.constants import img_path
 from src.utils.knapsack import Knapsack
 
 # Parameters initialization
 subcampaign = [0, 1, 2]
-readFile = ['../data/subcampaign0.csv', '../data/subcampaign1.csv', '../data/subcampaign2.csv']
+readFile = ['../data/subcampaign1.csv', '../data/subcampaign2.csv', '../data/subcampaign3.csv']
 
 # Save array to csv
 # for i in subcampaign:
@@ -188,12 +190,16 @@ plt.plot(np.mean(collected_rewards_per_experiments, axis=0), 'g')
 plt.plot(np.mean(sw_collected_rewards_per_experiments, axis=0), 'r')
 plt.plot(optimum_per_round, '--k')
 plt.legend(["TS", "SW-TS", "Optimum"])
+img_name = "assignment_3_reward.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()
 
 plt.figure(2)
-plt.ylabel("Regret")
+plt.ylabel("Cumulative Regret")
 plt.xlabel("t")
 plt.plot(np.cumsum(ts_instantaneous_regret), 'g')
 plt.plot(np.cumsum(swts_instantaneous_regret), 'r')
 plt.legend(["TS", "SW-TS"])
+img_name = "assignment_3_cum_regret.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()

@@ -1,9 +1,12 @@
+import os
+
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
 
 from src.assignment_2.gpts_learner import GPTSLearner
+from src.utils.constants import img_path
 from src.utils.knapsack import Knapsack
 from src.assignment_6.weighted_ts_learner import WeightedTSLearner
 from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
@@ -45,7 +48,7 @@ for i in range(0, len(data.index)):
 x_values_pricing = [np.linspace(min_value_pricing, max_value_pricing, len(y_values_pricing[0])) for i in range(0, len(subcampaigns))]
 
 
-data = pd.read_csv('../data/environment1.csv')
+data = pd.read_csv('../data/click_env.csv')
 n_arms_advertising = 21
 # array of budgets spacing from min_value_advertising to max_value_advertising
 daily_budgets = np.linspace(min_value_advertising, max_value_advertising, n_arms_advertising)
@@ -238,6 +241,8 @@ plt.ylabel("Regret")
 plt.xlabel("t")
 plt.plot(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising, axis=0)), 'g')
 plt.legend(["Cumulative Regret"])
+img_name = "assignment_6_cum_regret.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()
 
 plt.figure()
@@ -245,4 +250,6 @@ plt.ylabel("Regret")
 plt.xlabel("t")
 plt.plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising, axis=0)), 'r')
 plt.legend(["Regret"])
+img_name = "assignment_6_regret.png"
+plt.savefig(os.path.join(img_path, img_name))
 plt.show()
