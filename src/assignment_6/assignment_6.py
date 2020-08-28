@@ -18,7 +18,7 @@ T = 360
 colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 10
+n_experiments = 1
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -45,20 +45,20 @@ y_values_pricing = []
 for i in range(0, len(data.index)):
     y_values_pricing.append(np.array(data.iloc[i]))
 
-x_values_pricing = [np.linspace(min_value_pricing, max_value_pricing, len(y_values_pricing[0])) for i in range(0, len(subcampaigns))]
-
+x_values_pricing = [np.linspace(min_value_pricing, max_value_pricing, len(y_values_pricing[0])) for i in
+                    range(0, len(subcampaigns))]
 
 data = pd.read_csv('../data/click_env.csv')
 n_arms_advertising = 21
 # array of budgets spacing from min_value_advertising to max_value_advertising
 daily_budgets = np.linspace(min_value_advertising, max_value_advertising, n_arms_advertising)
 
-
 y_values_advertising = []
 # The values of the y for each function
 for i in range(0, len(data.index)):
     y_values_advertising.append(np.array(data.iloc[i]))
-x_values_advertising = [np.linspace(min_value_advertising, max_value_advertising, len(y_values_advertising[0])) for a in range(0, len(subcampaigns))]
+x_values_advertising = [np.linspace(min_value_advertising, max_value_advertising, len(y_values_advertising[0])) for a in
+                        range(0, len(subcampaigns))]
 
 # array of prices spacing from min_value_pricing to max_value_pricing
 conversion_prices = np.linspace(min_value_pricing, max_value_pricing, n_arms_pricing)
@@ -89,7 +89,7 @@ for s in subcampaigns:
     ts_rewards_per_experiment_pricing.append([])
     environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized[s]))
     environments_advertising.append(
-        ClickEnv(daily_budgets, sigma_advertising, x_values_advertising[s], y_values_advertising[s], s, colors[s]))
+        ClickEnv(daily_budgets, sigma_advertising, x_values_advertising[s], y_values_advertising[s], s + 1, colors[s]))
 
 for e in range(0, n_experiments):
 

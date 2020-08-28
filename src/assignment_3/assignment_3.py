@@ -42,7 +42,7 @@ n_phases = 3
 # Time horizon multiple of the number of phases
 T = n_phases * 120
 # Window size proportional to the square root of T and always integer
-window_size = 120
+window_size = 100
 # Number of experiments
 n_experiments = 5
 # The number of the actual abrupt phase

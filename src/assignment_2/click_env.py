@@ -39,7 +39,7 @@ class ClickEnv:
 
     def round(self, pulled_arm):
         # Returning the rewards avoiding negative value
-        return np.maximum(0, np.random.normal(0, self.sigmas[pulled_arm]) + self.means[pulled_arm])
+        return np.maximum(0, np.random.normal(self.means[pulled_arm], self.sigmas[pulled_arm]))
 
     def get_clicks_function(self):
         return self

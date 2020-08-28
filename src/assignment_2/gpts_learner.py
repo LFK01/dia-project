@@ -60,7 +60,7 @@ class GPTSLearner(Learner):
         self.gp.fit(x, y)
         self.means, self.sigmas = self.gp.predict(np.atleast_2d(self.arms).T, return_std=True)
         # self.sigmas = np.maximum(self.sigmas, 1e-2)
-        self.sigmas = np.maximum(self.sigmas, 1)
+        self.sigmas = np.maximum(self.sigmas, 1e-2)
 
         # Save the predicted value for each arms, avoiding negative value
         self.predicted_arms = np.random.normal(self.means, self.sigmas)

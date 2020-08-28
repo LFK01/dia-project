@@ -18,20 +18,25 @@ colors = ['r', 'b', 'g']
 data = pd.read_csv('../data/click_env.csv')
 min_budget = 0.0
 max_budget = 1.0
-n_arms = len(data.columns)
+n_arms = 21
 daily_budget = np.linspace(min_budget, max_budget, n_arms)
-sigma = 2
+sigma = 3
 
-x_values = [np.linspace(min_budget, max_budget, n_arms) for i in range(0, len(subcampaign))]
 y_values = []
 # The values of the y for each function
 for i in range(0, len(data.index)):
     y_values.append(np.array(data.iloc[i]))
+x_values = [np.linspace(min_budget, max_budget, len(y_values[s])) for s in subcampaign]
+
+# y_values = [np.array([0, 2, 2, 4, 6, 10, 16, 26, 42, 68, 110, 178, 288, 343, 370, 383, 389, 392, 393, 393, 393]),
+#             np.array([0, 5, 5, 10, 15, 25, 40, 65, 105, 170, 275, 395, 455, 485, 500, 508, 512, 514, 515, 515, 515]),
+#             np.array([0, 6, 6, 12, 18, 30, 48, 78, 126, 204, 330, 470, 540, 575, 592, 600, 604, 606, 607, 607, 607])
+#             ]
 
 # Time horizon
-T = 120
+T = 250
 # Number of experiments
-n_experiments = 30
+n_experiments = 50
 
 collected_rewards_per_experiments = []
 env = []

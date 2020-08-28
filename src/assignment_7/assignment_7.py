@@ -3,10 +3,11 @@ import os
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
+import pandas as pd
 
 from src.utils.constants import img_path
 from src.utils.knapsack import Knapsack
-from src.utils.click_budget import ClickBudget as AdvertisingEnvironment
+from src.assignment_2.click_env import ClickEnv
 from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
 from src.assignment_2.gpts_learner import GPTSLearner
 from src.assignment_6.reward_function_matrix import rewards
@@ -14,9 +15,10 @@ from src.assignment_4.ts_learner import TSLearner
 
 # number of timesteps
 T = 10
+colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 1
+n_experiments = 20
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -28,23 +30,41 @@ min_value_advertising = 0.0
 max_value_advertising = 1.0
 sigma_advertising = 1
 
-# number of arms for the advertising task
-n_arms_advertising = 21
-
-# arrays of budgets to spend each day
-daily_budget = np.linspace(min_value_advertising, max_value_advertising, n_arms_advertising)
-
 # min and max values for the pricing task
 min_value_pricing = 0.0
 max_value_pricing = 100.0
 
-# computation of the number of arms for the pricing task
-n_arms_pricing = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
+readFile = '../data/pricing.csv'
 
-# prices at which to sell the product
+# Read environment data from csv file
+data = pd.read_csv(readFile)
+n_arms_pricing = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
+print(n_arms_pricing)
+
+y_values_pricing = []
+# The values of the y for each function
+for i in range(0, len(data.index)):
+    y_values_pricing.append(np.array(data.iloc[i]))
+
+x_values_pricing = [np.linspace(min_value_pricing, max_value_pricing, len(y_values_pricing[0])) for i in
+                    range(0, len(subcampaigns))]
+
+data = pd.read_csv('../data/click_env.csv')
+n_arms_advertising = 21
+# array of budgets spacing from min_value_advertising to max_value_advertising
+daily_budget = np.linspace(min_value_advertising, max_value_advertising, n_arms_advertising)
+
+y_values_advertising = []
+# The values of the y for each function
+for i in range(0, len(data.index)):
+    y_values_advertising.append(np.array(data.iloc[i]))
+x_values_advertising = [np.linspace(min_value_advertising, max_value_advertising, len(y_values_advertising[0])) for a in
+                        range(0, len(subcampaigns))]
+
+# array of prices spacing from min_value_pricing to max_value_pricing
 conversion_prices = np.linspace(min_value_pricing, max_value_pricing, n_arms_pricing)
-# computation of the rewards constituted of the product of price and probability of selling
-rewards = rewards(conversion_prices, max_value_pricing, len(subcampaigns))
+# array of rewards composed of conversion rates multiplied by conversion_prices
+rewards = rewards(conversion_prices, len(subcampaigns), x_values_pricing, y_values_pricing)
 opt_pricing = np.max(rewards, axis=1)
 rewards_normalized = []
 for s in subcampaigns:
@@ -65,7 +85,8 @@ gpts_learner_advertising = []
 # initialization of the environments
 for s in subcampaigns:
     environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized[s]))
-    environments_advertising.append(AdvertisingEnvironment(s, budgets=daily_budget, sigma=sigma_advertising))
+    environments_advertising.append(
+        ClickEnv(daily_budget, sigma_advertising, x_values_advertising[s], y_values_advertising[s], s + 1, colors[s]))
 
 # execution of the experiments
 for e in range(0, n_experiments):
@@ -128,7 +149,7 @@ for e in range(0, n_experiments):
                 click_numbers_vector = np.array(gpts_learner_advertising[s].pull_arm())
                 # compute the rewards composed of the product of clicks, prices and conversion rates
                 modified_rewards = click_numbers_vector * proposed_price * conversion_rate_vector[s] \
-                                                                         * user_classes_probabilities_vector[s]
+                                   * user_classes_probabilities_vector[s]
                 # store the rewards in the values_combination_of_each_subcampaign array
                 values_combination_of_each_subcampaign.append(modified_rewards.tolist())
 
@@ -144,8 +165,8 @@ for e in range(0, n_experiments):
                 advertising_obtained_clicks = environments_advertising[s].round(superarm[s])
                 # update the collected revenue value
                 total_revenue += advertising_obtained_clicks * proposed_price \
-                                                             * environments_pricing[s].conversion_rates[price_index] \
-                                                             * user_classes_probabilities_vector[s]
+                                 * environments_pricing[s].conversion_rates[price_index] \
+                                 * user_classes_probabilities_vector[s]
                 # update the learner
                 gpts_learner_advertising[s].update(superarm[s], advertising_obtained_clicks)
 
@@ -208,15 +229,16 @@ for arm in range(n_arms_pricing):
     print(regrets)
     # axs[arm - 1, 0].ylabel("Regret")
     # axs[arm - 1, 0].xlabel("t")
-    axs[arm, 0].plot_curves(np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
-                                              axis=0)), 'g')
+    axs[arm, 0].plot(
+        np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
+                          axis=0)), 'g')
     axs[arm, 0].legend(["Cumulative Regret"])
     # plt.savefig('cum_regret_arm_' + str(arm) + '.png')
 
     # axs[arm - 1, 1].ylabel("Regret")
     # axs[arm - 1, 1].xlabel("t")
-    axs[arm, 1].plot_curves((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
-                                     axis=0)), 'r')
+    axs[arm, 1].plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
+                              axis=0)), 'r')
     axs[arm, 1].legend(["Regret"])
 
 for ax in axs.flat:
