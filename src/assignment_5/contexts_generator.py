@@ -3,8 +3,8 @@ from src.assignment_5.context_container import ContextContainer
 
 
 class ContextsGenerator:
-    def __init__(self, user_class, user_class_probabilities, environment, n_arms):
-        self.contexts = [ContextContainer(user_class, user_class_probabilities, environment, n_arms)]
+    def __init__(self, user_class, user_class_probabilities, environment, n_arms, prices):
+        self.contexts = [ContextContainer(user_class, user_class_probabilities, environment, n_arms, prices)]
         self.rewards = []
         self.opt = 0
 

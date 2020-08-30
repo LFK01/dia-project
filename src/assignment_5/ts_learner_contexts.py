@@ -9,12 +9,13 @@ class TSLearnerContext(Learner):
 
     # n_arms is the number of arms, probabilities is an array of probabilities related to the probability of each single
     # class. User class is an array of indexes each one for each class
-    def __init__(self, n_arms, probabilities, user_class, rewards_per_arm=None, collected_rewards=None,
+    def __init__(self, n_arms, probabilities, user_class, prices, rewards_per_arm=None, collected_rewards=None,
                  beta_parameters=None):
         super().__init__(n_arms)
         self.__probabilities = probabilities
         self.__n_arms = n_arms
         self.__n_classes = len(user_class)
+        self.__prices = prices
         if all(x is None for x in (rewards_per_arm, collected_rewards, beta_parameters, collected_rewards)):
             self.__rewards_per_arm = [[[] for arm in range(0, n_arms)] for cls in range(0, self.__n_classes)]
             self.__collected_rewards = [[] for cls in range(0, self.__n_classes)]
@@ -31,8 +32,9 @@ class TSLearnerContext(Learner):
     def pull_arm(self):
         scores = np.zeros((self.__n_classes, self.__n_arms))
         for cls in range(0, self.__n_classes):
-            scores[cls] = (np.random.beta(self.__beta_parameters[cls][:, 0], self.__beta_parameters[cls][:, 1]) *
-                           self.__probabilities[cls])
+            scores[cls] = np.multiply(
+                np.random.beta(self.__beta_parameters[cls][:, 0], self.__beta_parameters[cls][:, 1]) *
+                self.__probabilities[cls], self.__prices)
         return np.argmax(scores.sum(axis=0))
 
     # This finds the optimal arm in the case in which we are not considering not all the class as part of a context
@@ -44,9 +46,9 @@ class TSLearnerContext(Learner):
     def get_best_arm_sub_context(self, classes):
         scores = np.zeros((len(classes), self.__n_arms))
         for cls in range(0, len(classes)):
-            scores[cls] = (np.random.beta(self.__beta_parameters[classes[cls]][:, 0],
-                                          self.__beta_parameters[classes[cls]][:, 1]) *
-                           self.__probabilities[classes[cls]])
+            scores[cls] = np.multiply(
+                np.random.beta(self.__beta_parameters[classes[cls]][:, 0], self.__beta_parameters[classes[cls]][:, 1]) *
+                self.__probabilities[classes[cls]], self.__prices)
         index = np.argmax(scores.sum(axis=0))
         return index
 
@@ -56,8 +58,11 @@ class TSLearnerContext(Learner):
         self.t += 1
         self.__update_observations(pulled_arm, reward)
         for cls in range(0, self.__n_classes):
-            self.__beta_parameters[cls][pulled_arm, 0] = self.__beta_parameters[cls][pulled_arm, 0] + reward[cls]
-            self.__beta_parameters[cls][pulled_arm, 1] = self.__beta_parameters[cls][pulled_arm, 1] + 1.0 - reward[cls]
+            value = 0
+            if reward[cls] > 0:
+                value = 1
+            self.__beta_parameters[cls][pulled_arm, 0] = self.__beta_parameters[cls][pulled_arm, 0] + value
+            self.__beta_parameters[cls][pulled_arm, 1] = self.__beta_parameters[cls][pulled_arm, 1] + 1.0 - value
 
     # This method allow to split the learner in two different learners each one for a different context. The learners
     # are given in array form. First classes is an array of classes which compose the first new context and
@@ -73,9 +78,11 @@ class TSLearnerContext(Learner):
         collected_rewards2 = [self.__collected_rewards[i] for i in second_classes]
         beta_parameters1 = [self.__beta_parameters[i] for i in first_classes]
         beta_parameters2 = [self.__beta_parameters[i] for i in second_classes]
-        return [self.__init__(self.__n_arms, probabilities1, user_class1, rewards_per_arm1, collected_rewards1,
+        return [self.__init__(self.__n_arms, probabilities1, user_class1, self.__prices, rewards_per_arm1,
+                              collected_rewards1,
                               beta_parameters1),
-                self.__init__(self.__n_arms, probabilities2, user_class2, rewards_per_arm2, collected_rewards2,
+                self.__init__(self.__n_arms, probabilities2, user_class2, self.__prices, rewards_per_arm2,
+                              collected_rewards2,
                               beta_parameters2)]
 
     # It update the observation like in the basic case but it does so for each class which make up the context contained

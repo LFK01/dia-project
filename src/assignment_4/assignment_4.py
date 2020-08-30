@@ -12,9 +12,9 @@ from src.assignment_4.ts_learner import TSLearner
 from src.assignment_4.pricing_env import PricingEnv
 from src.utils.constants import subcampaign_names, img_path
 
-T = 150
+T = 18250
 
-n_experiments = 10
+n_experiments = 50
 
 min_price = 0.0
 max_price = 100.0
@@ -33,7 +33,7 @@ for i in range(0, len(data.index)):
     y_values.append(np.array(data.iloc[i]))
 x_values = [np.linspace(min_price, max_price, len(y_values[s])) for s in subcampaigns]
 
-probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
+probabilities_vector = [2 / 10, 2 / 5, 2 / 5]
 conversion_prices = np.linspace(min_price, max_price, n_arms)
 all_rewards_vector = []
 
@@ -102,7 +102,6 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
         np.average(a=ts_learner.collected_rewards, axis=0, weights=probabilities_vector))
     gr_rewards_per_experiment.append(
         np.average(a=gr_learner.collected_rewards, axis=0, weights=probabilities_vector))
-    print(ts_rewards_per_experiment)
 
 plt.figure(0)
 plt.ylabel("Cumulative Reward")
@@ -112,6 +111,11 @@ ts_total_rew = np.cumsum(np.mean(ts_rewards_per_experiment, axis=0))
 gr_total_rew = np.cumsum(np.mean(gr_rewards_per_experiment, axis=0))
 print(ts_total_rew)
 plt.plot(ts_total_rew, 'g')
+plt.scatter(len(ts_total_rew), round(np.max(ts_total_rew), 2))
+plt.annotate(round(np.max(ts_total_rew), 2), (len(ts_total_rew), round(np.max(ts_total_rew), 2)),
+             arrowprops=dict(arrowstyle="->",
+                             connectionstyle="arc3"),
+             xytext=(len(ts_total_rew) - 5000, np.max(ts_total_rew)))
 plt.plot(gr_total_rew, 'r')
 plt.legend(["TS", "Greedy"])
 
@@ -124,6 +128,7 @@ plt.ylabel("Cumulative Regret")
 plt.xlabel("t")
 ts_total_reg = np.cumsum(np.mean(np.array(opt) - ts_rewards_per_experiment, axis=0))
 gr_total_reg = np.cumsum(np.mean(np.array(opt) - gr_rewards_per_experiment, axis=0))
+print(np.mean(np.array(opt) - ts_rewards_per_experiment, axis=0))
 print(ts_total_reg)
 plt.plot(ts_total_reg, 'g')
 plt.plot(gr_total_reg, 'r')

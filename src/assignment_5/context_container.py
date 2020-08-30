@@ -14,11 +14,12 @@ class ContextContainer:
     # the context represented in this class is composed. It takes  the probabilities of each class which represents
     # the probabilities of a user belonging to a specific class. It takes a list of environments which are the ones
     # of the single classes. Finally it takes the number of arms
-    def __init__(self, user_class, context_probabilities, environment, n_arms, ts_learner=None):
+    def __init__(self, user_class, context_probabilities, environment, n_arms, prices, ts_learner=None):
         self.__context = user_class
         self.__probabilities = context_probabilities
+        self.__prices = prices
         if ts_learner is None:
-            self.__ts_learner_context = TSLearnerContext(n_arms, self.__probabilities, self.__context)
+            self.__ts_learner_context = TSLearnerContext(n_arms, self.__probabilities, self.__context, self.__prices)
         else:
             self.__ts_learner_context = ts_learner
         self.__environment = environment
@@ -34,9 +35,11 @@ class ContextContainer:
         total_reward = 0
         rewards_this_round = []
         for cls in range(0, len(self.__context)):
-            reward_of_class = self.__environment[cls].round(self.__context_optimal_arm) * self.__probabilities[cls]
+            reward_of_class = self.__environment[cls].round(self.__context_optimal_arm) * self.__prices[
+                self.__context_optimal_arm] * self.__probabilities[cls]
             rewards_this_round.append(reward_of_class / self.__probabilities[cls])
             self.__reward_per_arm[cls][self.__context_optimal_arm].append(reward_of_class / self.__probabilities[cls])
+            # print(self.__reward_per_arm[cls][self.__context_optimal_arm])
             total_reward += reward_of_class
         self.__ts_learner_context.update(self.__context_optimal_arm, rewards_this_round)
         return total_reward
@@ -49,11 +52,11 @@ class ContextContainer:
         if len(self.__context) == 1:
             raise
 
-        # If we have no enough rewards (data in this case) for some arm in some class, we can't compute the hoeffding bound
-        for i in range(0, self.__n_arms):
-            for cls in self.__context:
-                if len(self.__reward_per_arm[cls][i]) < 4:
-                    raise
+        # # If we have no enough rewards (data in this case) for some arm in some class, we can't compute the hoeffding bound
+        # for i in range(0, self.__n_arms):
+        #     for cls in self.__context:
+        #         if len(self.__reward_per_arm[cls][i]) < 1:
+        #             raise
 
         current_context_bound = self.__compute_hoeffding_bounds(self.__context, self.__context_optimal_arm)
         possible_splitting = []
@@ -77,9 +80,10 @@ class ContextContainer:
             environment2 = [self.__environment[i] for i in userclass2]
             # print("splitting1:", userclass1, "splitting 2:", userclass2, "\n")
             print("\nsplit")
-            return [ContextContainer(userclass1, probabilities1, environment1, self.__n_arms,
+            return [ContextContainer(userclass1, probabilities1, environment1, self.__n_arms, self.__prices,
                                      new_contexts_learners[0]), ContextContainer(userclass2, probabilities2,
                                                                                  environment2, self.__n_arms,
+                                                                                 self.__prices,
                                                                                  new_contexts_learners[1])]
         else:
             raise
@@ -98,5 +102,3 @@ class ContextContainer:
 
     def print_context(self, context_id):
         print("Context ", context_id, ": ", self.__context)
-
-
