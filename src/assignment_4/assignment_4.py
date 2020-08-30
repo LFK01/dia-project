@@ -25,13 +25,13 @@ readFile = '../data/pricing.csv'
 
 # Read environment data from csv file
 data = pd.read_csv(readFile)
-n_arms = len(data.columns)
+n_arms = 10
 
-x_values = [np.linspace(min_price, max_price, n_arms) for i in range(0, len(subcampaigns))]
 y_values = []
 # The values of the y for each function
 for i in range(0, len(data.index)):
     y_values.append(np.array(data.iloc[i]))
+x_values = [np.linspace(min_price, max_price, len(y_values[s])) for s in subcampaigns]
 
 probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
 conversion_prices = np.linspace(min_price, max_price, n_arms)
