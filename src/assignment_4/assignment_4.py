@@ -70,10 +70,12 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 
     ts_learner = TSLearner(n_arms=n_arms,
                            probabilities=probabilities_vector,
-                           number_of_classes=len(probabilities_vector), prices=conversion_prices)
+                           number_of_classes=len(probabilities_vector),
+                           prices=conversion_prices)
     gr_learner = GreedyLearner(n_arms=n_arms,
                                probabilities=probabilities_vector,
-                               number_of_classes=len(probabilities_vector), prices=conversion_prices)
+                               number_of_classes=len(probabilities_vector),
+                               prices=conversion_prices)
 
     for subcampaign in range(len(subcampaigns)):
         environments.append(PricingEnv(n_arms, demand_functions[subcampaign](conversion_prices)))

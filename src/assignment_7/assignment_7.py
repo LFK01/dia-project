@@ -8,17 +8,17 @@ import pandas as pd
 from src.utils.constants import img_path
 from src.utils.knapsack import Knapsack
 from src.assignment_2.click_env import ClickEnv
-from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
+from src.assignment_4.pricing_env import PricingEnv
 from src.assignment_2.gpts_learner import GPTSLearner
 from src.assignment_6.reward_function_matrix import rewards
 from src.assignment_4.ts_learner import TSLearner
 
 # number of timesteps
-T = 10
+T = 200
 colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 20
+n_experiments = 10
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -39,15 +39,12 @@ readFile = '../data/pricing.csv'
 # Read environment data from csv file
 data = pd.read_csv(readFile)
 n_arms_pricing = int(np.ceil(np.power(np.log2(T) * T, 1 / 4)))
-print(n_arms_pricing)
+print("Number of arms pricing: " + str(n_arms_pricing))
 
 y_values_pricing = []
 # The values of the y for each function
 for i in range(0, len(data.index)):
     y_values_pricing.append(np.array(data.iloc[i]))
-
-x_values_pricing = [np.linspace(min_value_pricing, max_value_pricing, len(y_values_pricing[0])) for i in
-                    range(0, len(subcampaigns))]
 
 data = pd.read_csv('../data/click_env.csv')
 n_arms_advertising = 21
@@ -63,12 +60,6 @@ x_values_advertising = [np.linspace(min_value_advertising, max_value_advertising
 
 # array of prices spacing from min_value_pricing to max_value_pricing
 conversion_prices = np.linspace(min_value_pricing, max_value_pricing, n_arms_pricing)
-# array of rewards composed of conversion rates multiplied by conversion_prices
-rewards = rewards(conversion_prices, len(subcampaigns), x_values_pricing, y_values_pricing)
-opt_pricing = np.max(rewards, axis=1)
-rewards_normalized = []
-for s in subcampaigns:
-    rewards_normalized.append(np.divide(rewards[s], opt_pricing[s]))
 
 # array to store the rewards of the gaussian process for each experiment
 gp_rewards_per_experiment_advertising = []
@@ -84,7 +75,7 @@ gpts_learner_advertising = []
 
 # initialization of the environments
 for s in subcampaigns:
-    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized[s]))
+    environments_pricing.append(PricingEnv(n_arms=n_arms_pricing, conversion_rates=y_values_pricing[s]))
     environments_advertising.append(
         ClickEnv(daily_budget, sigma_advertising, x_values_advertising[s], y_values_advertising[s], s + 1, colors[s]))
 
@@ -99,9 +90,8 @@ for e in range(0, n_experiments):
         # initialization of the Thompson Sampling Learner
         ts_learner_pricing = TSLearner(n_arms=n_arms_pricing,
                                        probabilities=user_classes_probabilities_vector,
-                                       number_of_classes=len(user_classes_probabilities_vector))
-        # saving of the prices
-        ts_learner_pricing.prices = conversion_prices
+                                       number_of_classes=len(user_classes_probabilities_vector),
+                                       prices=conversion_prices)
 
         # arrays to store the Gaussian Processes Thompson Sampling Learners
         gpts_learner_advertising = []
@@ -139,7 +129,7 @@ for e in range(0, n_experiments):
 
             # collect the reward from the environments corresponding to the current price
             for s in subcampaigns:
-                reward_pricing.append(environments_pricing[s].round(price_index))
+                reward_pricing.append(environments_pricing[s].round(price_index) * proposed_price)
             # update the learner
             ts_learner_pricing.update(price_index, reward_pricing)
 
@@ -220,10 +210,10 @@ fig, axs = plt.subplots(n_arms_pricing, 2)
 
 for arm in range(n_arms_pricing):
     np.set_printoptions(precision=3)
-    print("Opt")
-    print(opt_advertising)
-    print("Rewards")
-    print(np.mean(gp_rewards_per_experiment_advertising[:, arm, :], axis=0))
+    # print("Opt")
+    # print(opt_advertising)
+    # print("Rewards")
+    # print(np.mean(gp_rewards_per_experiment_advertising[:, arm, :], axis=0))
     print("Regrets")
     regrets = np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :], axis=0)
     print(regrets)
@@ -237,12 +227,11 @@ for arm in range(n_arms_pricing):
 
     # axs[arm - 1, 1].ylabel("Regret")
     # axs[arm - 1, 1].xlabel("t")
-    axs[arm, 1].plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
-                              axis=0)), 'r')
-    axs[arm, 1].legend(["Regret"])
+    axs[arm, 1].plot((np.mean(gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
+    axs[arm, 1].legend(["Cumulative Reward"])
 
 for ax in axs.flat:
-    ax.set(xlabel='timesteps', ylabel='')
+    ax.set(xlabel='Time steps', ylabel='')
 
 # Hide x labels and tick labels for top plots and y ticks for right plots.
 # for ax in axs.flat:
