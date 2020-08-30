@@ -11,7 +11,6 @@ from src.utils.knapsack import Knapsack
 from src.assignment_6.weighted_ts_learner import WeightedTSLearner
 from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
 from src.assignment_2.click_env import ClickEnv
-from src.assignment_6.reward_function_matrix import rewards
 from scipy import interpolate
 
 # number of timesteps
@@ -65,14 +64,6 @@ demand_probabilities = [interpolate.interp1d(x_values_pricing[subcampaign], y_va
                         for subcampaign in range(len(subcampaigns))]
 # array of prices spacing from min_value_pricing to max_value_pricing
 conversion_prices = np.linspace(min_value_pricing, max_value_pricing, n_arms_pricing)
-# array of rewards composed of conversion rates multiplied by conversion_prices
-rewards = rewards(conversion_prices, len(subcampaigns), x_values_pricing, y_values_pricing)
-# extracts the optimal reward
-opt_pricing = np.max(rewards, axis=1)
-# normalizes the rewards curve
-rewards_normalized = []
-for s in subcampaigns:
-    rewards_normalized.append(np.divide(rewards[s], opt_pricing[s]))
 
 # collects the rewards for each experiment for the pricing task executed by the Thompson Sampling algorithm
 ts_rewards_per_experiment_pricing = []
