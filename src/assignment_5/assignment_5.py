@@ -12,12 +12,12 @@ from scipy import interpolate
 from src.utils.constants import img_path
 
 T = 18250
-n_experiment = 100
+n_experiment = 20
 min_price = 0.0
-max_price = 1.00
+max_price = 1.0
 
 user_class = [0, 1, 2]
-user_class_probabilities = [2/10, 2/5, 2/5]
+user_class_probabilities = [2 / 10, 2 / 5, 2 / 5]
 
 readFile = '../data/pricing.csv'
 
@@ -71,14 +71,15 @@ np.set_printoptions(precision=3)
 print(compute_optimum(user_class, user_class_probabilities, rewards))
 print("Rewards")
 np.set_printoptions(precision=3)
-print(ts_rewards_per_experiment)
+print(np.mean(ts_rewards_per_experiment, axis=0) * 100)
 print("Regret")
 np.set_printoptions(precision=3)
 print(ts_instantaneous_regret)
 plt.figure(0)
 plt.ylabel("Reward")
 plt.xlabel("t")
-plt.plot(np.mean(ts_rewards_per_experiment, axis=0), 'g')
+print(np.cumsum(np.mean(ts_rewards_per_experiment, axis=0)))
+plt.plot(np.cumsum(np.mean(ts_rewards_per_experiment, axis=0)), 'g')
 plt.plot(opt, '--k')
 plt.legend(["TS", "Optimum"])
 img_name = "assignment_5_reward.png"
