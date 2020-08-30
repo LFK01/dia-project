@@ -14,13 +14,15 @@ class WeightedTSLearner(Learner):
 
     def pull_arm(self):
         conversion_rates = np.random.beta(self.beta_parameters[:, 0], self.beta_parameters[:, 1])
-        weighting_factor = conversion_rates*self.prices
+        weighting_factor = conversion_rates * self.prices
         idx = np.argmax(weighting_factor)
         return idx, np.max(conversion_rates)
 
-    def update(self, pulled_arm, reward):
+    def update(self, pulled_arm, reward_in_money):
         self.t += 1
-        self.update_observations(pulled_arm, reward)
-        self.beta_parameters[pulled_arm, 0] = self.beta_parameters[pulled_arm, 0] + reward
-        self.beta_parameters[pulled_arm, 1] = self.beta_parameters[pulled_arm, 1] + 1.0 - reward
-
+        self.update_observations(pulled_arm, reward_in_money)
+        reward_beta_dist = 0
+        if reward_in_money > 0:
+            reward_beta_dist = 1
+        self.beta_parameters[pulled_arm, 0] = self.beta_parameters[pulled_arm, 0] + reward_beta_dist
+        self.beta_parameters[pulled_arm, 1] = self.beta_parameters[pulled_arm, 1] + 1.0 - reward_beta_dist
