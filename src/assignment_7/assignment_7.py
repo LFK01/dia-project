@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
+from scipy import interpolate
 
 from src.utils.constants import img_path
 from src.utils.knapsack import Knapsack
@@ -18,7 +19,7 @@ T = 200
 colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 10
+n_experiments = 1
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -45,6 +46,9 @@ y_values_pricing = []
 # The values of the y for each function
 for i in range(0, len(data.index)):
     y_values_pricing.append(np.array(data.iloc[i]))
+x_values_pricing = [np.linspace(min_value_pricing, max_value_pricing, len(y_values_pricing[s])) for s in subcampaigns]
+
+demand_functions = [interpolate.interp1d(x_values_pricing[i], y_values_pricing[i]) for i in subcampaigns]
 
 data = pd.read_csv('../data/click_env.csv')
 n_arms_advertising = 21
@@ -75,7 +79,8 @@ gpts_learner_advertising = []
 
 # initialization of the environments
 for s in subcampaigns:
-    environments_pricing.append(PricingEnv(n_arms=n_arms_pricing, conversion_rates=y_values_pricing[s]))
+    environments_pricing.append(PricingEnv(n_arms=n_arms_pricing,
+                                           conversion_rates=demand_functions[s](conversion_prices)))
     environments_advertising.append(
         ClickEnv(daily_budget, sigma_advertising, x_values_advertising[s], y_values_advertising[s], s + 1, colors[s]))
 
@@ -167,9 +172,10 @@ for e in range(0, n_experiments):
     # store the accumulated revenue for the experiment
     gp_rewards_per_experiment_advertising.append(total_revenue_per_arm)
 
-# Find the optimal value executing the Knapsack optimization on the different environment
 gp_rewards_per_experiment_advertising = np.array(gp_rewards_per_experiment_advertising)
 
+
+# find optimal value
 revenue_advertising_list = []
 
 # iterate over the possible prices
