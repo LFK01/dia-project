@@ -12,6 +12,7 @@ from src.assignment_6.weighted_ts_learner import WeightedTSLearner
 from src.assignment_4.pricing_env import PricingEnv as PricingEnvironment
 from src.assignment_2.click_env import ClickEnv
 from src.assignment_6.reward_function_matrix import rewards
+from scipy import interpolate
 
 # number of timesteps
 T = 360
@@ -60,6 +61,8 @@ for i in range(0, len(data.index)):
 x_values_advertising = [np.linspace(min_value_advertising, max_value_advertising, len(y_values_advertising[0])) for a in
                         range(0, len(subcampaigns))]
 
+demand_probabilities = [interpolate.interp1d(x_values_pricing[subcampaign], y_values_pricing[subcampaign])
+                        for subcampaign in range(len(subcampaigns))]
 # array of prices spacing from min_value_pricing to max_value_pricing
 conversion_prices = np.linspace(min_value_pricing, max_value_pricing, n_arms_pricing)
 # array of rewards composed of conversion rates multiplied by conversion_prices
@@ -87,7 +90,8 @@ gpts_learner_advertising = []
 # initialization of the arrays of the rewards and of the environments
 for s in subcampaigns:
     ts_rewards_per_experiment_pricing.append([])
-    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing, conversion_rates=rewards_normalized[s]))
+    environments_pricing.append(PricingEnvironment(n_arms=n_arms_pricing,
+                                                   conversion_rates=demand_probabilities[s](conversion_prices)))
     environments_advertising.append(
         ClickEnv(daily_budgets, sigma_advertising, x_values_advertising[s], y_values_advertising[s], s + 1, colors[s]))
 
@@ -140,7 +144,7 @@ for e in range(0, n_experiments):
             # extraction of the real price from the environment
             reward_pricing = environments_pricing[s].round(price_index)
             # update of the estimation values of the environment
-            advanced_ts_learners_pricing[s].update(price_index, reward_pricing)
+            advanced_ts_learners_pricing[s].update(price_index, reward_pricing * proposed_price)
 
             # advertising
             # the learner returns the entire array of the expected number of clicks for each possible arm
