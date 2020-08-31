@@ -9,6 +9,10 @@
 \usepackage{amsfonts}
 \usepackage{amssymb}
 \usepackage{listings}
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\usepackage{caption}
+\captionsetup[figure]{labelformat=empty}
 \author{Mattia Bacarella - 928345\\
 		Francesco Corda - 920212\\
 		Davide Damato - 920616\\
@@ -321,11 +325,72 @@ plot rewards and regrets for the 2 learners
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}{Assignment 4 - Regrets}
+\begin{frame}{Assignment 4 - Experiments}
+Setting \#1, parameters:
+\begin{itemize}
+\item T = 365
+\item Number of arms = $\ceil{(T \log{(T)})^{\frac{1}{4}}}$ = 8
+\item Number of experiments = 50
+\end{itemize}
+Setting \#2, parameters:
+\begin{itemize}
+\item T = 365
+\item Number of arms = $4 \times \ceil{(T \log{(T)})^{\frac{1}{4}}} = 32$
+\item Number of experiments = 50
+\end{itemize}
+Setting \#3, parameters:
+\begin{itemize}
+\item T = 18250
+\item Number of arms = $\ceil{(T \log{(T)})^{\frac{1}{4}}} = 23$
+\item Number of experiments = 50
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Assignment 4 - Setting \#1, Regret}
 \begin{figure}[hbtp]
 \centering
-\includegraphics[width=0.8\textwidth]{images/assignment_4_regrets.png}
-\caption{}
+\includegraphics[width=0.8\textwidth]{images/assignment_4_exp_1_cum_regret.png}
+\caption{Comparison of the cumulative regrets of a TS and a Greedy approach. The Greedy algorithm performs well at the beginning but loses in the end.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Assignment 4 - Setting \#1, Reward}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.8\textwidth]{images/assignment_4_exp_1_cum_reward.png}
+\caption{Cumulative reward collected during the learning.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Assignment 4 - Setting \#2, Regret}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.8\textwidth]{images/assignment_4_exp_2_cum_regret.png}
+\caption{This experiment shows that selecting a large number of candidates (4x than before) doesn't guarantee better results. The regret is more than tripled and the TS approach is performing worse than the Greedy one.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Assignment 4 - Setting \#2, Reward}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.8\textwidth]{images/assignment_4_exp_2_cum_reward.png}
+\caption{Cumulative reward collected during the learning. The TS algorithm is significantly under the Greedy algorithm.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Assignment 4 - Setting \#3, Regret}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.8\textwidth]{images/assignment_4_exp_3_cum_regret.png}
+\caption{This experiment aims to produce a reference for the results obtained with context generation in the next assignment. The algorithm is launched for a number of steps = 20 (updates each day) $\times$ 365 (days) = 18250.}
+\end{figure}
+\end{frame}
+
+\begin{frame}{Assignment 4 - Setting \#3, Reward}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.8\textwidth]{images/assignment_4_exp_3_cum_reward.png}
+\caption{Cumulative reward collected during the learning.}
 \end{figure}
 \end{frame}
 
