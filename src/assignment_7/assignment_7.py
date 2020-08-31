@@ -11,15 +11,14 @@ from src.utils.knapsack import Knapsack
 from src.assignment_2.click_env import ClickEnv
 from src.assignment_4.pricing_env import PricingEnv
 from src.assignment_2.gpts_learner import GPTSLearner
-from src.assignment_6.reward_function_matrix import rewards
 from src.assignment_4.ts_learner import TSLearner
 
 # number of timesteps
-T = 200
+T = 365
 colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 1
+n_experiments = 10
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -144,7 +143,7 @@ for e in range(0, n_experiments):
                 click_numbers_vector = np.array(gpts_learner_advertising[s].pull_arm())
                 # compute the rewards composed of the product of clicks, prices and conversion rates
                 modified_rewards = click_numbers_vector * proposed_price * conversion_rate_vector[s] \
-                                   * user_classes_probabilities_vector[s]
+                                                        * user_classes_probabilities_vector[s]
                 # store the rewards in the values_combination_of_each_subcampaign array
                 values_combination_of_each_subcampaign.append(modified_rewards.tolist())
 
@@ -160,8 +159,8 @@ for e in range(0, n_experiments):
                 advertising_obtained_clicks = environments_advertising[s].round(superarm[s])
                 # update the collected revenue value
                 total_revenue += advertising_obtained_clicks * proposed_price \
-                                 * environments_pricing[s].conversion_rates[price_index] \
-                                 * user_classes_probabilities_vector[s]
+                                                             * environments_pricing[s].conversion_rates[price_index] \
+                                                             * user_classes_probabilities_vector[s]
                 # update the learner
                 gpts_learner_advertising[s].update(superarm[s], advertising_obtained_clicks)
 
@@ -212,9 +211,9 @@ for conversion_rate_index in range(n_arms_pricing):
 opt_advertising = max(revenue_advertising_list)
 
 # plot the graphs
-fig, axs = plt.subplots(n_arms_pricing, 2)
 
 for arm in range(n_arms_pricing):
+    plt.figure()
     np.set_printoptions(precision=3)
     # print("Opt")
     # print(opt_advertising)
@@ -225,24 +224,25 @@ for arm in range(n_arms_pricing):
     print(regrets)
     # axs[arm - 1, 0].ylabel("Regret")
     # axs[arm - 1, 0].xlabel("t")
-    axs[arm, 0].plot(
+    plt.plot(
         np.cumsum(np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising[:, arm, :],
                           axis=0)), 'g')
-    axs[arm, 0].legend(["Cumulative Regret"])
+    plt.legend(["Cumulative Regret"])
+    img_name = "assignment_7_regrets_arm_" + str(arm) + "_cum_regret.png"
+    plt.savefig(os.path.join(img_path, img_name))
     # plt.savefig('cum_regret_arm_' + str(arm) + '.png')
 
     # axs[arm - 1, 1].ylabel("Regret")
     # axs[arm - 1, 1].xlabel("t")
-    axs[arm, 1].plot((np.mean(gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
-    axs[arm, 1].legend(["Cumulative Reward"])
+    plt.figure()
+    plt.plot((np.mean(gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
+    plt.legend(["Cumulative Reward"])
+    img_name = "assignment_7_regrets_arm_" + str(arm) + "_cum_reward.png"
+    plt.savefig(os.path.join(img_path, img_name))
 
-for ax in axs.flat:
-    ax.set(xlabel='Time steps', ylabel='')
-
+plt.show()
 # Hide x labels and tick labels for top plots and y ticks for right plots.
 # for ax in axs.flat:
 #     ax.label_outer()
 
-img_name = "assignment_7_regrets.png"
-plt.savefig(os.path.join(img_path, img_name))
-plt.show()
+
