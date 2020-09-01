@@ -34,7 +34,7 @@ x_values = [np.linspace(min_budget, max_budget, len(y_values[s])) for s in subca
 #             ]
 
 # Time horizon
-T = 250
+T = 365
 # Number of experiments
 n_experiments = 50
 
@@ -84,7 +84,7 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
 
     # At the end of each experiment, save the total click of each t of this experiment
     collected_rewards_per_experiments.append(total_clicks_per_t)
-    time.sleep(0.01)
+    # time.sleep(0.01)
 
 # Find the optimal value executing the Knapsack optimization on the different environment
 # TODO: find the best way to get the optimum value

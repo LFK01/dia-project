@@ -204,6 +204,7 @@ print(collected_rewards_per_experiments)
 print("Regret")
 np.set_printoptions(precision=3)
 print(swts_instantaneous_regret)
+
 plt.figure(1)
 plt.ylabel("Reward")
 plt.xlabel("t")
