@@ -45,7 +45,7 @@ T = n_phases * 120
 # Window size proportional to the square root of T and always integer
 window_size = [90]
 # Number of experiments
-n_experiments = 10
+n_experiments = 25
 # The number of the actual abrupt phase
 phase_number = 0
 
@@ -148,7 +148,6 @@ for e in tqdm(range(0, n_experiments), desc="Experiment processed", unit="exp"):
     collected_rewards_per_experiments.append(total_clicks_per_t)
     for w in range(0, len(window_size)):
         sw_collected_rewards_per_experiments[w].append(sw_total_clicks_per_t[w])
-    time.sleep(0.01)
 
 # Initialize the instantaneous regrets and the optimum per each round
 # computation of the optimal budget combination for each abrupt phase
@@ -205,6 +204,7 @@ print(collected_rewards_per_experiments)
 print("Regret")
 np.set_printoptions(precision=3)
 print(swts_instantaneous_regret)
+
 plt.figure(1)
 plt.ylabel("Reward")
 plt.xlabel("t")
@@ -217,7 +217,7 @@ for w in window_size:
     label.append("SW_TS - " + str(w))
 label.append("Optimum")
 plt.legend(label)
-img_name = "assignment_3_reward.png"
+img_name = "assignment_3_exp_2_cum_reward.png"
 plt.savefig(os.path.join(img_path, img_name))
 plt.show()
 
@@ -231,6 +231,6 @@ label = ["TS"]
 for w in window_size:
     label.append("SW_TS - " + str(w))
 plt.legend(label)
-img_name = "assignment_3_cum_regret.png"
+img_name = "assignment_3_exp_2_cum_regret.png"
 plt.savefig(os.path.join(img_path, img_name))
 plt.show()

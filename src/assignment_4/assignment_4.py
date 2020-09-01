@@ -121,7 +121,7 @@ plt.annotate(round(np.max(ts_total_rew), 2), (len(ts_total_rew), round(np.max(ts
 plt.plot(gr_total_rew, 'r')
 plt.legend(["TS", "Greedy"])
 
-img_name = "assignment_4_rewards.png"
+img_name = "assignment_4_exp_3_cum_reward.png"
 plt.savefig(os.path.join(img_path, img_name))
 plt.show()
 
@@ -136,6 +136,6 @@ plt.plot(ts_total_reg, 'g')
 plt.plot(gr_total_reg, 'r')
 plt.legend(["TS", "Greedy"])
 
-img_name = "assignment_4_regrets.png"
+img_name = "assignment_4_exp_3_cum_regret.png"
 plt.savefig(os.path.join(img_path, img_name))
 plt.show()
