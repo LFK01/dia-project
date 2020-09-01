@@ -241,10 +241,10 @@ plt.savefig(os.path.join(img_path, img_name))
 plt.show()
 
 plt.figure()
-plt.ylabel("Regret")
+plt.ylabel("Reward")
 plt.xlabel("t")
 plt.plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising, axis=0)), 'r')
-plt.legend(["Regret"])
-img_name = "assignment_6_regret.png"
+plt.legend(["Cumulative Reward"])
+img_name = "assignment_6_cum_reward.png"
 plt.savefig(os.path.join(img_path, img_name))
 plt.show()
