@@ -205,32 +205,48 @@ print(collected_rewards_per_experiments)
 print("Regret")
 np.set_printoptions(precision=3)
 print(swts_instantaneous_regret)
-plt.figure(1)
-plt.ylabel("Reward")
-plt.xlabel("t")
-plt.plot(np.mean(collected_rewards_per_experiments, axis=0))
-for w in range(0, len(window_size)):
-    plt.plot(np.mean(sw_collected_rewards_per_experiments[w], axis=0))
-plt.plot(optimum_per_round, '--k')
-label = ["TS"]
-for w in window_size:
-    label.append("SW_TS - " + str(w))
-label.append("Optimum")
-plt.legend(label)
-img_name = "assignment_3_reward.png"
-plt.savefig(os.path.join(img_path, img_name))
-plt.show()
 
-plt.figure(2)
-plt.ylabel("Cumulative Regret")
-plt.xlabel("t")
-plt.plot(np.cumsum(ts_instantaneous_regret))
-for w in range(0, len(window_size)):
-    plt.plot(np.cumsum(swts_instantaneous_regret[w]))
-label = ["TS"]
-for w in window_size:
-    label.append("SW_TS - " + str(w))
-plt.legend(label)
-img_name = "assignment_3_cum_regret.png"
-plt.savefig(os.path.join(img_path, img_name))
-plt.show()
+if len(window_size) == 1:
+    plt.figure(1)
+    plt.ylabel("Reward")
+    plt.xlabel("t")
+    plt.plot(np.mean(collected_rewards_per_experiments, axis=0))
+    for w in range(0, len(window_size)):
+        plt.plot(np.mean(sw_collected_rewards_per_experiments[w], axis=0))
+    plt.plot(optimum_per_round, '--k')
+    label = ["TS"]
+    for w in window_size:
+        label.append("SW_TS - " + str(w))
+    label.append("Optimum")
+    plt.legend(label)
+    img_name = "assignment_3_reward.png"
+    plt.savefig(os.path.join(img_path, img_name))
+    plt.show()
+
+    plt.figure(2)
+    plt.ylabel("Cumulative Regret")
+    plt.xlabel("t")
+    plt.plot(np.cumsum(ts_instantaneous_regret))
+    for w in range(0, len(window_size)):
+        plt.plot(np.cumsum(swts_instantaneous_regret[w]))
+    label = ["TS"]
+    for w in window_size:
+        label.append("SW_TS - " + str(w))
+    plt.legend(label)
+    img_name = "assignment_3_cum_regret.png"
+    plt.savefig(os.path.join(img_path, img_name))
+    plt.show()
+else:
+    plt.figure(1)
+    plt.ylabel("Cumulative Regret")
+    plt.xlabel("t")
+    plt.plot(np.cumsum(ts_instantaneous_regret))
+    for w in range(0, len(window_size)):
+        plt.plot(np.cumsum(swts_instantaneous_regret[w]))
+    label = ["TS"]
+    for w in window_size:
+        label.append("SW_TS - " + str(w))
+    plt.legend(label)
+    img_name = "assignment_3_cum_regret_multi.png"
+    plt.savefig(os.path.join(img_path, img_name))
+    plt.show()
