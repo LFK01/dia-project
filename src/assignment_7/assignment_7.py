@@ -18,7 +18,7 @@ T = 365
 colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 10
+n_experiments = 50
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -235,7 +235,7 @@ for arm in range(n_arms_pricing):
     # axs[arm - 1, 1].ylabel("Regret")
     # axs[arm - 1, 1].xlabel("t")
     plt.figure()
-    plt.plot((np.mean(gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
+    plt.plot(np.cumsum(np.mean(gp_rewards_per_experiment_advertising[:, arm, :], axis=0)), 'r')
     plt.legend(["Cumulative Reward"])
     img_name = "assignment_7_regrets_arm_" + str(arm) + "_cum_reward.png"
     plt.savefig(os.path.join(img_path, img_name))

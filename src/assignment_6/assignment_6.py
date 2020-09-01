@@ -14,11 +14,11 @@ from src.assignment_2.click_env import ClickEnv
 from scipy import interpolate
 
 # number of timesteps
-T = 360
+T = 365
 colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 10
+n_experiments = 50
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
@@ -243,7 +243,7 @@ plt.show()
 plt.figure()
 plt.ylabel("Reward")
 plt.xlabel("t")
-plt.plot((np.mean(np.array(opt_advertising) - gp_rewards_per_experiment_advertising, axis=0)), 'r')
+plt.plot(np.cumsum(np.mean(gp_rewards_per_experiment_advertising, axis=0)), 'r')
 plt.legend(["Cumulative Reward"])
 img_name = "assignment_6_cum_reward.png"
 plt.savefig(os.path.join(img_path, img_name))
