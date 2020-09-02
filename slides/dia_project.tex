@@ -32,7 +32,6 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 \lstdefinestyle{mystyle}{
-	language = Python,
     backgroundcolor=\color{backcolour},   
     commentstyle=\color{codegreen},
     keywordstyle=\color{magenta},
@@ -51,7 +50,10 @@
     tabsize=2
 }
 
-\lstset{style=mystyle}
+\lstset{
+	style=mystyle,
+	escapechar={|}
+	}
 
 \makeatletter
 \let\@@magyar@captionfix\relax
@@ -139,7 +141,7 @@ We excluded the class of (Over 40, Novice) users because of the online nature of
 \end{frame}
 
 \begin{frame}{Assignment 1 - Conversion Rate Curves}
-Given a domain for the prices of a gym subscription that ranges from 0 to 100 €, we identified 3 curves with the following characteristics:
+Given a domain for the prices of a gym subscription that ranges from € 0 to € 100, we identified 3 curves with the following characteristics:
 \begin{itemize}
 \item all curves present a monotonically decreasing trend, starting from a conversion rate of 1 and ending towards 0
 \item to add realism to the curves, the conversion rates maintain values close to 1 until a minimum price threshold is reached  
@@ -280,18 +282,18 @@ plot rewards and regrets
 
 \begin{frame}[fragile]{Assignment 3 - Pseudocode}
 \begin{lstlisting}
-initialize click envs
-for exp in n_experiments:
-  initialize gp-ts and gp-ts-sw learners 
-  for t in time_horizon:
-  	if abprupt_phase is changed:
-  		reset memory of the learners
+|\color{cyan}initialize| click envs
+|\color{cyan}for| exp |\color{cyan}in| n_experiments:
+  |\color{cyan}initialize| gp-ts and gp-ts-sw learners 
+  |\color{cyan}for| t |\color{cyan}in| time_horizon:
+  	|\color{cyan}if| abprupt_phase is changed:
+  		|\color{cyan}reset| memory of the learners
     draw samples for each subcampaign
     find super-arm by solving knapsack problem
-    pull arms given by super-arm
-    update gp-ts and gp-ts-sw learners
-calculate clairvoyant value
-plot rewards and regrets for the 2 learners
+    |\color{cyan}pull| arms given by super-arm
+    |\color{cyan}update| gp-ts and gp-ts-sw learners
+|\color{cyan}calculate| clairvoyant value
+|\color{cyan}plot| rewards and regrets for the 2 learners
 \end{lstlisting}
 \end{frame}
 
@@ -317,16 +319,16 @@ plot rewards and regrets for the 2 learners
 
 \begin{frame}[fragile]{Assignment 4 - Pseudocode}
 \begin{lstlisting}
-initialize pricing envs
-for exp in n_experiments:
-  initialize ts and greedy learners 
-  for t in time_horizon:
+|\color{cyan}initialize| pricing envs
+|\color{cyan}for| exp |\color{cyan}in| n_experiments:
+  |\color{cyan}initialize| ts and greedy learners 
+  |\color{cyan}for| t |\color{cyan}in| time_horizon:
     draw samples for each subcampaign (ts learner)
-    update ts learner
+    |\color{cyan}update| ts learner
     draw samples for each subcampaign (greedy learner)
-    update greedy learner
-calculate clairvoyant value
-plot rewards and regrets for the 2 learners
+    |\color{cyan}update| greedy learner
+|\color{cyan}calculate| clairvoyant value
+|\color{cyan}plot| rewards and regrets for the 2 learners
 \end{lstlisting}
 \end{frame}
 
@@ -405,16 +407,16 @@ Setting \#3, parameters:
 
 \begin{frame}[fragile]{Assignment 5 - Pseudocode}
 \begin{lstlisting}
-initialize pricing envs
-for exp in n_experiments:
-  initialize context generator 
-  for t in time_horizon:
-    if week is ended:
-      generate new contexts (greedy approach)
-    for context in n_contexts:
-      run ts algorithm
-calculate clairvoyant value
-plot rewards and regrets
+|\color{cyan}initialize| pricing envs
+|\color{cyan}for| exp |\color{cyan}in| n_experiments:
+  |\color{cyan}initialize| context generator 
+  |\color{cyan}for| t |\color{cyan}in| time_horizon:
+    |\color{cyan}if| trimester is ended:
+      |\color{cyan}generate| new contexts (greedy approach)
+    |\color{cyan}for| context |\color{cyan}in| n_contexts:
+      |\color{cyan}run| ts algorithm
+|\color{cyan}calculate| clairvoyant value
+|\color{cyan}plot| rewards and regrets
 \end{lstlisting}
 \end{frame}
 
@@ -440,11 +442,12 @@ plot rewards and regrets
 
 \begin{frame}[fragile]{Assignment 6 - Pseudocode}
 \begin{lstlisting}
-initialize pricing and click envs
-for exp in n_experiments:
-	initialize ts and gp-ts learners 
-	for t in time_horizon:
-		for s in subcampaign:
+|\color{cyan}|
+|\color{cyan}initialize| pricing and click envs
+|\color{cyan}for| exp |\color{cyan}in| n_experiments:
+	|\color{cyan}initialize| ts and gp-ts learners 
+	|\color{cyan}for| t |\color{cyan}in| time_horizon:
+		|\color{cyan}for| s |\color{cyan}in| subcampaign:
 			draw a (price, conversion_rate) sample with ts		learner
 			get return from the pricing env, given the price
 			update ts learner
@@ -452,9 +455,9 @@ for exp in n_experiments:
 			weight the clicks with price and conversion_rate	previously selected by the ts learner
 		find super-arm by solving knapsack problem
 		get revenues = clicks * price * conversion_rate from the click envs by pulling the super-arm
-		update gp-ts learners 
-calculate clairvoyant value
-plot rewards and regrets
+		|\color{cyan}update| gp-ts learners 
+|\color{cyan}calculate| clairvoyant value
+|\color{cyan}plot| rewards and regrets
 \end{lstlisting}
 \end{frame}
 
@@ -462,15 +465,15 @@ plot rewards and regrets
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/assignment_6_cum_regret.png}
-\caption{}
+\caption{Analyzing the cumulative regret of the algorithm we can observe that the curve has almost an asymptotic progress meaning that the algorithm is almost near to the optimal solution.}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Assignment 6 - Regret}
+\begin{frame}{Assignment 6 - Cumulative Reward}
 \begin{figure}[hbtp]
 \centering
-\includegraphics[width=0.8\textwidth]{images/assignment_6_regret.png}
-\caption{}
+\includegraphics[width=8cm]{images/assignment_6_cum_reward.png}
+\caption{If we observe the cumulative reward instead we can see that the algorithm is gaining an increasing reward with the development of time thanks to the increasing slope of the curve.}
 \end{figure}
 \end{frame}
 
@@ -480,31 +483,40 @@ plot rewards and regrets
 
 \begin{frame}[fragile]{Assignment 7 - Pseudocode}
 \begin{lstlisting}
-initialize pricing and click envs
-for exp in n_experiments:
-	for price in n_prices:
-		initialize ts and gp-ts learners 
-		for t in time_horizon:
-			for s in subcampaign:
-				select current price and conversion_rate 
+|\color{cyan}|
+|\color{cyan}initialize| pricing and click envs
+|\color{cyan}for| exp |\color{cyan}in| n_experiments:
+	|\color{cyan}for| price |\color{cyan}in| n_prices:
+		|\color{cyan}initialize| ts and gp-ts learners 
+		|\color{cyan}for| t |\color{cyan}in| time_horizon:
+			|\color{cyan}for| s |\color{cyan}in| subcampaign:
+				|\color{cyan}select| current price and conversion_rate 
 				get return from the pricing env, given the				price
-				update ts learner
+				|\color{cyan}update| ts learner
 				draw click samples with gp-ts learner
 				weight the clicks with price and                   conversion_rate previously selected
 			find super-arm by solving knapsack problem
-			collect revenues = = clicks * price *             conversion_rate from the click envs by pulling    the super-arm
-			update gp-ts learners 
-calculate clairvoyant value
-plot rewards and regrets
+			|\color{cyan}collect| revenues = = clicks * price *             conversion_rate from the click envs by pulling    the super-arm
+			|\color{cyan}update| gp-ts learners 
+|\color{cyan}calculate| clairvoyant value
+|\color{cyan}plot| rewards and regrets
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}{Assignment 7 - Regrets}
-TODO
+\begin{frame}{Assignment 7 - Regrets of optimal arm}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.8\textwidth]{images/assignment_7_regrets_arm_2_cum_regret.png}
+\caption{In this assignment we can notice that the algorithms reaches a suboptimal solution after few steps but then accumulates regret almost linearly due to inefficiency of the imposed price.}
+\end{figure}
 \end{frame}
 
-\begin{frame}{Assignment 7 - Rewards}
-TODO
+\begin{frame}{Assignment 7 - Rewards of optimal arm}
+\begin{figure}[hbtp]
+\centering
+\includegraphics[width=0.8\textwidth]{images/assignment_7_regrets_arm_2_cum_reward.png}
+\caption{Here we can notice that the reward is lower than the cumulative reward of the assignment 6.}
+\end{figure}
 \end{frame}
 
 \end{document}
