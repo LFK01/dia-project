@@ -14,14 +14,16 @@ from src.assignment_2.click_env import ClickEnv
 from scipy import interpolate
 
 # number of timesteps
-T = 365
+T = 150
 colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 50
+n_experiments = 1
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
+# probabilities of a user to correspond to each class
+user_classes_probabilities_vector = [1 / 4, 1 / 2, 1 / 4]
 
 # minimum and maximum value for the advertising
 min_value_advertising = 0.0
@@ -142,7 +144,8 @@ for e in range(0, n_experiments):
             click_numbers_vector = np.array(gpts_learner_advertising[s].pull_arm())
             # the number of clicks gets multiplied by the conversion rates in order to estimate how many users would
             # actually buy the product
-            modified_rewards = click_numbers_vector * proposed_price * conversion_rate
+            modified_rewards = click_numbers_vector * proposed_price * conversion_rate \
+                                                    * user_classes_probabilities_vector[s]
             # the modified rewards are stored in a list
             values_combination_of_each_subcampaign.append(modified_rewards.tolist())
 
@@ -159,7 +162,7 @@ for e in range(0, n_experiments):
             # retrieve the conversion rate for that specific
             conversion = environments_pricing[s].conversion_rates[price_index_list[s]]
             # compute the total outcome collected from the procedure
-            total_revenue += reward_advertising * best_price_list[s] * conversion
+            total_revenue += reward_advertising * best_price_list[s] * conversion * user_classes_probabilities_vector[s]
             # update the learner
             gpts_learner_advertising[s].update(superarm[s], reward_advertising)
 
@@ -188,7 +191,7 @@ for s in subcampaigns:
         # retrieve the actual conversion rate
         conversion_rate = environments_pricing[s].conversion_rates[conversion_rate_index]
         # compute the weighting factor
-        weighting_factor_of_subcampaign_list.append(price * conversion_rate)
+        weighting_factor_of_subcampaign_list.append(price * conversion_rate * user_classes_probabilities_vector[s])
 
     # extract the best combination of price and conversion rate
     best_weighting_factor = max(weighting_factor_of_subcampaign_list)
@@ -220,7 +223,8 @@ opt_advertising = 0
 # retrieve the optimal values for each subcampaign and compute the optimal outcome
 for s in subcampaigns:
     opt_advertising += environments_advertising[s].means[optimal_reward[s]] \
-                       * conversion_rate_list[s] * best_price_list[s]
+                       * conversion_rate_list[s] * best_price_list[s] \
+                       * user_classes_probabilities_vector[s]
 
 # plot the graphs
 np.set_printoptions(precision=3)
@@ -243,8 +247,9 @@ plt.show()
 plt.figure()
 plt.ylabel("Reward")
 plt.xlabel("t")
-plt.plot(np.cumsum(np.mean(gp_rewards_per_experiment_advertising, axis=0)), 'r')
-plt.legend(["Cumulative Reward"])
-img_name = "assignment_6_cum_reward.png"
+plt.axhline(y=opt_advertising, color='black', linestyle='dashed')
+plt.plot(np.mean(gp_rewards_per_experiment_advertising, axis=0), 'r')
+plt.legend(["Instantaneous Reward"])
+img_name = "assignment_6_inst_reward.png"
 plt.savefig(os.path.join(img_path, img_name))
 plt.show()
