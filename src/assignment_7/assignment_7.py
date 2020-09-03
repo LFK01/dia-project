@@ -18,7 +18,7 @@ T = 365
 colors = ['r', 'b', 'g']
 
 # number of experiments
-n_experiments = 3
+n_experiments = 50
 
 # subcampaigns array
 subcampaigns = [0, 1, 2]
