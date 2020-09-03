@@ -45,7 +45,7 @@ for subcampaign in subcampaigns:
     x = np.linspace(min_price, max_price, 100)
     y = [demand_functions[subcampaign](x[i]) for i in range(0, 100)]
     plt.plot(x, y, 'g')
-    plt.legend(["Subcampaign " + str(subcampaign + 1) + " " + subcampaign_names[subcampaign]])
+    plt.legend(["Subcampaign " + subcampaign_names[subcampaign]])
     img_name = "demand_curve_" + str(subcampaign + 1) + ".png"
     plt.savefig(os.path.join(img_path, img_name))
     plt.show()

@@ -30,7 +30,7 @@ class ClickEnv:
         x = np.linspace(x_max, x_min, 100)
         y = [self.function(x[i]) for i in range(0, 100)]
         plt.plot(x, y, color)
-        plt.legend(["Subcampaign " + str(subcampaign_number) + " " + subcampaign_names[subcampaign_number - 1]])
+        plt.legend(["Subcampaign " + subcampaign_names[subcampaign_number - 1]])
         img_name = "subcampaign_" + str(subcampaign_number) + ".png"
         plt.savefig(os.path.join(img_path, img_name))
         plt.show()

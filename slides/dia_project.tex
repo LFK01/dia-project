@@ -14,6 +14,13 @@
 \usepackage{mathtools}
 \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
 \usepackage{caption}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
 \captionsetup[figure]{labelformat=empty}
 \author{Mattia Bacarella - 928345\\
 		Francesco Corda - 920212\\
@@ -153,7 +160,7 @@ The classes differ in their sensitivity to price increases, according to princip
 \begin{frame}{Assignment 1 - (Under 40, Novice) class}
 \begin{figure}[hbtp]
 \centering
-\includegraphics[width=0.8\textwidth]{images/demand_curve_1.png}
+\includegraphics[width=0.8\textwidth]{images/demand_curve_2.png}
 \caption{Fast decrease.}
 \end{figure}
 \end{frame}
@@ -161,7 +168,7 @@ The classes differ in their sensitivity to price increases, according to princip
 \begin{frame}{Assignment 1 - (Under 40, Experienced) class}
 \begin{figure}[hbtp]
 \centering
-\includegraphics[width=0.8\textwidth]{images/demand_curve_2.png}
+\includegraphics[width=0.8\textwidth]{images/demand_curve_3.png}
 \caption{Intermediate decrease.}
 \end{figure}
 \end{frame}
@@ -169,7 +176,7 @@ The classes differ in their sensitivity to price increases, according to princip
 \begin{frame}{Assignment 1 - (Over 40, Experienced) class}
 \begin{figure}[hbtp]
 \centering
-\includegraphics[width=0.8\textwidth]{images/demand_curve_3.png}
+\includegraphics[width=0.8\textwidth]{images/demand_curve_1.png}
 \caption{Slow decrease.}
 \end{figure}
 \end{frame}
@@ -221,7 +228,7 @@ Each period has the same length of 4 months and is denoted by almost-stationary 
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/subcampaign_2_abrupt_phases.png}
-\caption{Class moderately influenced by the phases.}
+\caption{The (Under 40, Novice) class has a medium interest in the product during the year, with a significant drop during Summer.}
 \end{figure}
 \end{frame}
 
@@ -229,7 +236,7 @@ Each period has the same length of 4 months and is denoted by almost-stationary 
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/subcampaign_3_abrupt_phases.png}
-\caption{Class highly influenced by the phases.}
+\caption{The (Under 40, Experienced) class has the highest interest in product in all phases.}
 \end{figure}
 \end{frame}
 
@@ -237,7 +244,7 @@ Each period has the same length of 4 months and is denoted by almost-stationary 
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/subcampaign_1_abrupt_phases.png}
-\caption{Class less influenced by the phases.}
+\caption{The (Over 40, Experienced) class has the lowest interest in the product, but is the least affected by seasonality.}
 \end{figure}
 \end{frame}
 
@@ -260,19 +267,28 @@ Each period has the same length of 4 months and is denoted by almost-stationary 
 \end{lstlisting}
 \end{frame}
 
+\begin{frame}{Assignment 2 - Experiments}
+Setting parameters:
+\begin{itemize}
+\item T = 365
+\item Number of arms = 21
+\item Number of experiments = 50
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Assignment 2 -  Cumulative Regret}
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/assignment_2_cum_regret.png}
-\caption{}
+\caption{The cumulative regret shows a fast increase in the beginning, corresponding to a predominant exploration, and then slows down favoring the exploitation of the results.}
 \end{figure}
 \end{frame}
 
-\begin{frame}{Assignment 2 - Regret}
+\begin{frame}{Assignment 2 - Instantaneous Regret}
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/assignment_2_regret.png}
-\caption{}
+\caption{The regret goes to 0 in approximately 50 steps.}
 \end{figure}
 \end{frame}
 
@@ -297,11 +313,21 @@ Each period has the same length of 4 months and is denoted by almost-stationary 
 \end{lstlisting}
 \end{frame}
 
+\begin{frame}{Assignment 3 - Experiments}
+Setting \#1, \#2, \#3 parameters:
+\begin{itemize}
+\item T = 360
+\item Number of arms = 21
+\item Number of experiments = 25
+\item Sliding window = 50, 90, 120
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Assignment 3 -  Cumulative Regret}
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/assignment_3_exp_1_cum_regret.png}
-\caption{}
+\caption{All TS-SW settings perform better than the pure TS approach. Among them, the sliding window = 90 has the overall best performance.}
 \end{figure}
 \end{frame}
 
@@ -309,7 +335,7 @@ Each period has the same length of 4 months and is denoted by almost-stationary 
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/assignment_3_exp_1_cum_reward.png}
-\caption{}
+\caption{This plot shows that the TS approach is unable to reach the optimal values in the second and third phases, while the sliding window = 90 always produces good results.}
 \end{figure}
 \end{frame}
 
@@ -333,23 +359,25 @@ Each period has the same length of 4 months and is denoted by almost-stationary 
 \end{frame}
 
 \begin{frame}{Assignment 4 - Experiments}
+General parameters:
+\begin{itemize}
+\item Number of experiments = 50
+\item User class probabilities = $[\frac{1}{5}, \frac{2}{5}, \frac{2}{5}]$
+\end{itemize} 
 Setting \#1, parameters:
 \begin{itemize}
 \item T = 365
 \item Number of arms = $\ceil{(T \log{(T)})^{\frac{1}{4}}}$ = 8
-\item Number of experiments = 50
 \end{itemize}
 Setting \#2, parameters:
 \begin{itemize}
 \item T = 365
 \item Number of arms = $4 \times \ceil{(T \log{(T)})^{\frac{1}{4}}} = 32$
-\item Number of experiments = 50
 \end{itemize}
 Setting \#3, parameters:
 \begin{itemize}
 \item T = 18250
 \item Number of arms = $\ceil{(T \log{(T)})^{\frac{1}{4}}} = 23$
-\item Number of experiments = 50
 \end{itemize}
 \end{frame}
 
@@ -389,7 +417,7 @@ Setting \#3, parameters:
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/assignment_4_exp_3_cum_regret.png}
-\caption{This experiment aims to produce a reference for the results obtained with context generation in the next assignment. The algorithm is launched for a number of steps = 20 (updates each day) $\times$ 365 (days) = 18250.}
+\caption{This experiment aims to produce a reference for the results obtained with context generation in the \hyperlink{page.42}{next assignment}. The algorithm is launched for a number of steps = 50 (updates each day) $\times$ 365 (days) = 18250.}
 \end{figure}
 \end{frame}
 
@@ -420,11 +448,21 @@ Setting \#3, parameters:
 \end{lstlisting}
 \end{frame}
 
+\begin{frame}{Assignment 5 - Experiments}
+Setting \#1, parameters:
+\begin{itemize}
+\item T = 18250
+\item Number of arms = $\ceil{(T \log{(T)})^{\frac{1}{4}}}$ = 23
+\item User class probabilities = $[\frac{1}{5}, \frac{2}{5}, \frac{2}{5}]$
+\item Number of experiments = 50
+\end{itemize}
+\end{frame}
+
 \begin{frame}{Assignment 5 - Cumulative Regret}
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/assignment_5_cum_regret.png}
-\caption{If we compare this result with the one obtained in assignment 4, we can see that we obtain a worse result in terms of cumulative regret, but this is due to the method that we use to compute the optimum in the two cases.}
+\caption{If we compare this result with the one obtained in \hyperlink{page.37}{assignment 4}, we can see that we obtain a worse result in terms of cumulative regret, but this is due to the method that we use to compute the optimum in the two cases.}
 \end{figure}
 \end{frame}
 
@@ -432,7 +470,7 @@ Setting \#3, parameters:
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=0.8\textwidth]{images/assignment_5_reward.png}
-\caption{If we look instead to the cumulative reward, we can see that we get a better result compared to assignment 4}
+\caption{If we look instead to the cumulative reward, we can see that we get a better result compared to assignment 4 (573k vs 567k). }
 \end{figure}
 \end{frame}
 
@@ -482,7 +520,7 @@ Setting \#3, parameters:
 \begin{figure}[hbtp]
 \centering
 \includegraphics[width=8cm]{images/assignment_6_cum_reward.png}
-\caption{If we observe the cumulative reward instead we can see that the algorithm is gaining an increasing reward with the development of time thanks to the increasing slope of the curve.}
+\caption{If instead we observe the cumulative reward, we can see that the algorithm is gaining an increasing reward with the development of time thanks to the increasing slope of the curve.}
 \end{figure}
 \end{frame}
 
@@ -498,7 +536,6 @@ Setting \#3, parameters:
 \item Number of arms pricing = $\ceil{(T \log{(T)})^{\frac{1}{4}}}$ = 8
 \item Number of arms advertising = 21
 \end{itemize}
-Class probabilities are necessary to compute the rewards since the same price is assigned to each of them. In the previous experiment it was not necessary because 
 \end{frame}
 
 \begin{frame}[fragile]{Assignment 7 - Pseudocode}
