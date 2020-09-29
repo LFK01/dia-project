@@ -497,16 +497,16 @@ Setting \#1, parameters:
 |\color{cyan}|
 |\color{cyan}initialize| pricing and click envs
 |\color{cyan}for| exp |\color{cyan}in| n_experiments:
-	|\color{cyan}initialize| ts and gp-ts learners 
+	|\color{cyan}initialize| ts and gp learners 
 	|\color{cyan}for| t |\color{cyan}in| time_horizon:
 		|\color{cyan}for| s |\color{cyan}in| subcampaign:
-			draw a (price, conversion_rate) sample with ts		learner
-			get return from the pricing env, given the price
-			update ts learner
-			draw click samples with gp-ts learner
+			|\color{cyan}pull-arm| (price, conversion_rate) with ts learner
+			retrieve result from the pricing env
+			|\color{cyan}update| ts learner
+			|\color{cyan}pull-arm| (clicks)with gp learner
 			weight the clicks with price and conversion_rate	previously selected by the ts learner
-		find super-arm by solving knapsack problem
-		get revenues = clicks * price * conversion_rate from the click envs by pulling the super-arm
+		|\color{cyan}find super-arm| by solving knapsack problem
+		|\color{cyan}collected-revenues| = clicks * price * conversion_rate
 		|\color{cyan}update| gp-ts learners 
 |\color{cyan}calculate| clairvoyant value
 |\color{cyan}plot| rewards and regrets
@@ -549,16 +549,17 @@ Setting \#1, parameters:
 |\color{cyan}initialize| pricing and click envs
 |\color{cyan}for| exp |\color{cyan}in| n_experiments:
 	|\color{cyan}for| price |\color{cyan}in| n_prices:
-		|\color{cyan}initialize| ts and gp-ts learners 
+		|\color{cyan}initialize| ts and gp learners 
 		|\color{cyan}for| t |\color{cyan}in| time_horizon:
 			|\color{cyan}for| s |\color{cyan}in| subcampaign:
 				|\color{cyan}select| current price and conversion_rate 
-				get return from the pricing env, given the				price
+				retrieve result from the pricing env, given 			 the price
 				|\color{cyan}update| ts learner
 				draw click samples with gp-ts learner
 				weight the clicks with price and                   conversion_rate previously selected
-			find super-arm by solving knapsack problem
-			|\color{cyan}collect| revenues = = clicks * price *             conversion_rate from the click envs by pulling    the super-arm
+			|\color{cyan}find super-arm|  by solving knapsack problem
+			|\color{cyan}collected-revenues| = clicks * price *
+											  conversion_rate
 			|\color{cyan}update| gp-ts learners 
 |\color{cyan}calculate| clairvoyant value
 |\color{cyan}plot| rewards and regrets
@@ -598,6 +599,10 @@ Setting \#1, parameters:
 		\item Assignment 6 shows a bigger cumulative regret than assignment 7. This can be justified by the initial exploration phase in which a lot of regret is accumulated.
 		\item Assignment 6 has a continuously decreasing slope of cumulative regret while assignment 7 shows a quasi-linear slope, this underlines that assignment 6 is improving while assignment 7 has settled in a sub-optimal solution.
 	\end{itemize}
+\end{frame}
+
+\begin{frame}{}
+	\huge{Thank you!}
 \end{frame}
 
 \end{document}
