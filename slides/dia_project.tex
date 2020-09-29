@@ -349,10 +349,14 @@ Setting \#1, \#2, \#3 parameters:
 |\color{cyan}for| exp |\color{cyan}in| n_experiments:
   |\color{cyan}initialize| ts and greedy learners 
   |\color{cyan}for| t |\color{cyan}in| time_horizon:
-    draw samples for each subcampaign (ts learner)
-    |\color{cyan}update| ts learner
-    draw samples for each subcampaign (greedy learner)
-    |\color{cyan}update| greedy learner
+    |\color{cyan}for| subcampaign |\color{cyan}in| campaigns:
+      draw samples from Beta distribution (TS-learner)
+      select best arm according to the TS-learner
+      play arm and collect reward (TS-learner)
+      |\color{cyan}update| TS-learner
+      select best arm according to the Greedy-learner
+      play arm and collect reward (Greedy-learner)
+      |\color{cyan}update| Greedy-learner
 |\color{cyan}calculate| clairvoyant value
 |\color{cyan}plot| rewards and regrets for the 2 learners
 \end{lstlisting}
